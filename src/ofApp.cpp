@@ -37,7 +37,7 @@ void ofApp::draw(){
 
     for (int i = 0; i < kNumberOfBands; i++) {
         float selectedBand = beat_.getBand(i);
-        float hz = (i * sample_rate_) / buffer_size_;
+        float hz = ((i+1) * sample_rate_) / buffer_size_;
         std::string text = ofToString(i) + ") " + ofToString(hz) + " hz " + ofToString(selectedBand);
         ofDrawBitmapString(text, 10, 120 + (20*i));
     }
