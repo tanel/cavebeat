@@ -25,8 +25,13 @@ void ofApp::draw(){
     ofDrawBitmapString("hihat: "+ofToString(beat.hihat()), 10, 80);
     ofDrawBitmapString("volume: FIXME:", 10, 100);
     ofDrawBitmapString("bands: FIXME:", 10, 120);
+    beat.
 
     cout << beat.kick() << "," << beat.snare() << "," << beat.hihat() << endl;
+}
+
+void ofApp::audioReceived(float* input, int bufferSize, int nChannels) {
+    beat.audioReceived(input, bufferSize, nChannels);
 }
 
 //--------------------------------------------------------------
@@ -72,8 +77,4 @@ void ofApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){
 
-}
-
-void ofApp::audioReceived(float* input, int bufferSize, int nChannels) {
-    beat.audioReceived(input, bufferSize, nChannels);
 }
