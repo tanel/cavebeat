@@ -20,6 +20,11 @@ void ofApp::draw(){
     ofFill();
 
     ofDrawBitmapString("fps: "+ofToString(ofGetFrameRate()), 10, 20);
+    ofDrawBitmapString("kick: "+ofToString(beat.kick()), 10, 40);
+    ofDrawBitmapString("snare: "+ofToString(beat.snare()), 10, 60);
+    ofDrawBitmapString("hihat: "+ofToString(beat.hihat()), 10, 80);
+    ofDrawBitmapString("volume: FIXME:", 10, 100);
+    ofDrawBitmapString("bands: FIXME:", 10, 120);
 
     cout << beat.kick() << "," << beat.snare() << "," << beat.hihat() << endl;
 }
