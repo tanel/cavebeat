@@ -4,14 +4,14 @@
 void ofApp::setup(){
     ofBackground(255,255,255);
 
-    sampleRate = 44100;
+    sample_rate_ = 44100;
 
-    ofSoundStreamSetup(0, 1, this, sampleRate, beat.getBufferSize(), 4);
+    ofSoundStreamSetup(0, 1, this, sample_rate_, beat_.getBufferSize(), 4);
 
-    font.loadFont("Batang.ttf", 160, true, true, true);
+    font_.loadFont("Batang.ttf", 160, true, true, true);
 
-    gist.setUseForOnsetDetection(GIST_PEAK_ENERGY);
-    gist.setThreshold(GIST_PEAK_ENERGY, .05);
+    gist_.setUseForOnsetDetection(GIST_PEAK_ENERGY);
+    gist_.setThreshold(GIST_PEAK_ENERGY, .05);
 
     ofAddListener(GistEvent::ON,this,&ofApp::onNoteOn);
     ofAddListener(GistEvent::OFF,this,&ofApp::onNoteOff);
@@ -19,7 +19,7 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-    beat.update(ofGetElapsedTimeMillis());
+    beat_.update(ofGetElapsedTimeMillis());
 }
 
 //--------------------------------------------------------------
@@ -27,31 +27,32 @@ void ofApp::draw(){
     ofSetColor(0, 90, 60);
     ofFill();
 
-    ofDrawBitmapString("fps: "+ofToString(ofGetFrameRate()), 10, 20);
-    ofDrawBitmapString("kick: "+ofToString(beat.kick()), 10, 40);
-    ofDrawBitmapString("snare: "+ofToString(beat.snare()), 10, 60);
-    ofDrawBitmapString("hihat: "+ofToString(beat.hihat()), 10, 80);
-    ofDrawBitmapString("volume: FIXME:", 10, 100);
+    ofDrawBitmapString("buffer size: "+ofToString(buffer_size_), 10, 20);
+    ofDrawBitmapString("kick: "+ofToString(beat_.kick()), 10, 40);
+    ofDrawBitmapString("snare: "+ofToString(beat_.snare()), 10, 60);
+    ofDrawBitmapString("hihat: "+ofToString(beat_.hihat()), 10, 80);
+    ofDrawBitmapString("channel count: "+ofToString(channel_count_), 10, 100);
 
     const int kNumberOfBands = 32;
 
     for (int i = 0; i < kNumberOfBands; i++) {
-        float selectedBand = beat.getBand(i);
-        std::string space("");
-        if (i < 10) {
-            space = " ";
-        }
-        ofDrawBitmapString("band " + space + ofToString(i) + ": " + ofToString(selectedBand), 10, 120 + (20*i));
+        float selectedBand = beat_.getBand(i);
+        float hz = (i * sample_rate_) / buffer_size_;
+        std::string text = ofToString(i) + ") " + ofToString(hz) + " hz " + ofToString(selectedBand);
+        ofDrawBitmapString(text, 10, 120 + (20*i));
     }
 }
 
 void ofApp::audioReceived(float* input, int bufferSize, int nChannels) {
-    beat.audioReceived(input, bufferSize, nChannels);
+    beat_.audioReceived(input, buffer_size_, channel_count_);
+
+    buffer_size_ = bufferSize;
+    channel_count_ = nChannels;
 
     //convert float array to vector
     vector<float>buffer;
     buffer.assign(&input[0],&input[bufferSize]);
-    gist.processAudio(buffer, bufferSize, nChannels, sampleRate);
+    gist_.processAudio(buffer, bufferSize, nChannels, sample_rate_);
 }
 
 void ofApp::onNoteOn(GistEvent &e){

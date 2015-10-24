@@ -29,9 +29,10 @@ public:
 
 private:
 
-    ofxBeat beat;
-    ofTrueTypeFont font;
-    ofxGist gist;
-    int sampleRate;
-
+    ofxBeat beat_;
+    ofTrueTypeFont font_;
+    ofxGist gist_;
+    int sample_rate_;
+    int buffer_size_;
+    int channel_count_;
 };
