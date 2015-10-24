@@ -32,7 +32,17 @@ void ofApp::draw(){
     ofDrawBitmapString("snare: "+ofToString(beat.snare()), 10, 60);
     ofDrawBitmapString("hihat: "+ofToString(beat.hihat()), 10, 80);
     ofDrawBitmapString("volume: FIXME:", 10, 100);
-    ofDrawBitmapString("bands: FIXME:", 10, 120);
+
+    const int kNumberOfBands = 32;
+
+    for (int i = 0; i < kNumberOfBands; i++) {
+        float selectedBand = beat.getBand(i);
+        std::string space("");
+        if (i < 10) {
+            space = " ";
+        }
+        ofDrawBitmapString("band " + space + ofToString(i) + ": " + ofToString(selectedBand), 10, 120 + (20*i));
+    }
 }
 
 void ofApp::audioReceived(float* input, int bufferSize, int nChannels) {
@@ -95,5 +105,5 @@ void ofApp::gotMessage(ofMessage msg){
 
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){
-
+    
 }
