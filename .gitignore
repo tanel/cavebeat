@@ -1,3 +1,6 @@
 bin/cavebeat.app
 UserInterfaceState.xcuserstate
 .DS_Store
+xcdebugger
+cavebeat.xcodeproj/project.xcworkspace/
+*.xcscheme
