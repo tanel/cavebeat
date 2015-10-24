@@ -6,12 +6,23 @@ void ofApp::setup(){
 
     sample_rate_ = 44100;
 
-    ofSoundStreamSetup(0, 1, this, sample_rate_, beat_.getBufferSize(), 4);
+    ofSoundStreamSetup(0, 2, this, sample_rate_, beat_.getBufferSize(), 4);
 
     font_.loadFont("Batang.ttf", 160, true, true, true);
 
     gist_.setUseForOnsetDetection(GIST_PEAK_ENERGY);
     gist_.setThreshold(GIST_PEAK_ENERGY, .05);
+
+    current_vol_ = 0;
+
+    left.assign(beat_.getBufferSize(), 0.0);
+    right.assign(beat_.getBufferSize(), 0.0);
+    volHistory.assign(400, 0.0);
+
+    smoothed_vol_     = 0.0;
+    scaled_vol_		= 0.0;
+
+    setup_done_ = true;
 
     ofAddListener(GistEvent::ON,this,&ofApp::onNoteOn);
     ofAddListener(GistEvent::OFF,this,&ofApp::onNoteOff);
@@ -27,32 +38,62 @@ void ofApp::draw(){
     ofSetColor(0, 90, 60);
     ofFill();
 
-    ofDrawBitmapString("buffer size: "+ofToString(buffer_size_), 10, 20);
+    ofDrawBitmapString("sample rate: "+ofToString(sample_rate_) + " hz", 10, 20);
     ofDrawBitmapString("kick: "+ofToString(beat_.kick()), 10, 40);
     ofDrawBitmapString("snare: "+ofToString(beat_.snare()), 10, 60);
     ofDrawBitmapString("hihat: "+ofToString(beat_.hihat()), 10, 80);
-    ofDrawBitmapString("channel count: "+ofToString(channel_count_), 10, 100);
+    ofDrawBitmapString("current vol: "+ofToString(current_vol_), 10, 100);
+    ofDrawBitmapString("smoothed vol: "+ofToString(smoothed_vol_), 10, 120);
 
     const int kNumberOfBands = 32;
 
     for (int i = 0; i < kNumberOfBands; i++) {
         float selectedBand = beat_.getBand(i);
-        float hz = ((i+1) * sample_rate_) / buffer_size_;
+        float hz = ((i+1) * sample_rate_) / beat_.getBufferSize();
         std::string text = ofToString(i) + ") " + ofToString(hz) + " hz " + ofToString(selectedBand);
-        ofDrawBitmapString(text, 10, 120 + (20*i));
+        ofDrawBitmapString(text, 10, 140 + (20*i));
     }
 }
 
 void ofApp::audioReceived(float* input, int bufferSize, int nChannels) {
-    beat_.audioReceived(input, buffer_size_, channel_count_);
+    if (!setup_done_) {
+        return;
+    }
 
-    buffer_size_ = bufferSize;
+    beat_.audioReceived(input, bufferSize, channel_count_);
+
     channel_count_ = nChannels;
 
     //convert float array to vector
     vector<float>buffer;
     buffer.assign(&input[0],&input[bufferSize]);
     gist_.processAudio(buffer, bufferSize, nChannels, sample_rate_);
+
+    calculateVolume(input, bufferSize);
+}
+
+void ofApp::calculateVolume(float *input, int bufferSize) {
+    // samples are "interleaved"
+    int numCounted = 0;
+
+    //lets go through each sample and calculate the root mean square which is a rough way to calculate volume
+    for (int i = 0; i < bufferSize; i++){
+        left[i]		= input[i*2]*0.5;
+        right[i]	= input[i*2+1]*0.5;
+
+        current_vol_ += left[i] * left[i];
+        current_vol_ += right[i] * right[i];
+        numCounted+=2;
+    }
+
+    //this is how we get the mean of rms :)
+    current_vol_ /= (float)numCounted;
+
+    // this is how we get the root of rms :)
+    current_vol_ = sqrt( current_vol_ );
+
+    smoothed_vol_ *= 0.93;
+    smoothed_vol_ += 0.07 * current_vol_;
 }
 
 void ofApp::onNoteOn(GistEvent &e){
