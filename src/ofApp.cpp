@@ -2,7 +2,11 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    ofBackground(255,255,255);
+
     ofSoundStreamSetup(0, 1, this, 44100, beat.getBufferSize(), 4);
+
+    font.loadFont("Batang.ttf", 160, true, true, true);
 }
 
 //--------------------------------------------------------------
@@ -12,6 +16,11 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    ofSetColor(0, 90, 60);
+    ofFill();
+
+    ofDrawBitmapString("fps: "+ofToString(ofGetFrameRate()), 10, 20);
+
     cout << beat.kick() << "," << beat.snare() << "," << beat.hihat() << endl;
 }
 
@@ -56,7 +65,7 @@ void ofApp::gotMessage(ofMessage msg){
 }
 
 //--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
+void ofApp::dragEvent(ofDragInfo dragInfo){
 
 }
 

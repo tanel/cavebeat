@@ -25,5 +25,6 @@ public:
 private:
 
     ofxBeat beat;
-    
+    ofTrueTypeFont font;
+
 };
