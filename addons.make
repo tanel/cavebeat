@@ -1,0 +1,15 @@
+ofxThreadedImageLoader
+ofxAnimatable
+ofxBeat
+ofxCurlNoise
+ofxFilterLibrary
+ofxFlowTools
+ofxFurry
+ofxFX
+ofxGist
+ofxHTTP
+ofxInkSim
+ofxLiquidFun
+ofxPostGlitch
+ofxStreetView
+ofxTextSuite
