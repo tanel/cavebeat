@@ -3,6 +3,7 @@
 #include "ofMain.h"
 
 #include "ofxBeat.h"
+#include "ofxGist.h"
 
 class ofApp : public ofBaseApp{
 
@@ -22,9 +23,15 @@ public:
     void gotMessage(ofMessage msg);
 
     void audioReceived(float*, int, int);
+
+    void onNoteOn(GistEvent &e);
+    void onNoteOff(GistEvent &e);
+
 private:
 
     ofxBeat beat;
     ofTrueTypeFont font;
+    ofxGist gist;
+    int sampleRate;
 
 };

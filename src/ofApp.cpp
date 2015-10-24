@@ -4,9 +4,17 @@
 void ofApp::setup(){
     ofBackground(255,255,255);
 
-    ofSoundStreamSetup(0, 1, this, 44100, beat.getBufferSize(), 4);
+    sampleRate = 44100;
+
+    ofSoundStreamSetup(0, 1, this, sampleRate, beat.getBufferSize(), 4);
 
     font.loadFont("Batang.ttf", 160, true, true, true);
+
+    gist.setUseForOnsetDetection(GIST_PEAK_ENERGY);
+    gist.setThreshold(GIST_PEAK_ENERGY, .05);
+
+    ofAddListener(GistEvent::ON,this,&ofApp::onNoteOn);
+    ofAddListener(GistEvent::OFF,this,&ofApp::onNoteOff);
 }
 
 //--------------------------------------------------------------
@@ -25,14 +33,25 @@ void ofApp::draw(){
     ofDrawBitmapString("hihat: "+ofToString(beat.hihat()), 10, 80);
     ofDrawBitmapString("volume: FIXME:", 10, 100);
     ofDrawBitmapString("bands: FIXME:", 10, 120);
-    beat.
-
-    cout << beat.kick() << "," << beat.snare() << "," << beat.hihat() << endl;
 }
 
 void ofApp::audioReceived(float* input, int bufferSize, int nChannels) {
     beat.audioReceived(input, bufferSize, nChannels);
+
+    //convert float array to vector
+    vector<float>buffer;
+    buffer.assign(&input[0],&input[bufferSize]);
+    gist.processAudio(buffer, bufferSize, nChannels, sampleRate);
 }
+
+void ofApp::onNoteOn(GistEvent &e){
+    //noteOnRadius = 100;
+};
+
+
+void ofApp::onNoteOff(GistEvent &e){
+    //noteOnRadius = 0;
+};
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
