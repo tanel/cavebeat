@@ -46,7 +46,11 @@ private:
 
     vector <float> left;
     vector <float> right;
-    vector <float> volHistory;
+    vector <float> vol_history_;
+
+    float onset_threshold_;
+    float onset_minimum_threshold_;
+    float onset_decay_rate_;
 
     bool setup_done_;
 };

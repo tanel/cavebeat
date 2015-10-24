@@ -13,19 +13,23 @@ void ofApp::setup(){
     gist_.setUseForOnsetDetection(GIST_PEAK_ENERGY);
     gist_.setThreshold(GIST_PEAK_ENERGY, .05);
 
-    current_vol_ = 0;
-
+    // Volume
     left.assign(beat_.getBufferSize(), 0.0);
     right.assign(beat_.getBufferSize(), 0.0);
-    volHistory.assign(400, 0.0);
-
+    vol_history_.assign(400, 0.0);
+    current_vol_ = 0;
     smoothed_vol_     = 0.0;
     scaled_vol_		= 0.0;
 
-    setup_done_ = true;
-
     ofAddListener(GistEvent::ON,this,&ofApp::onNoteOn);
     ofAddListener(GistEvent::OFF,this,&ofApp::onNoteOff);
+
+    // onset detection
+    onset_decay_rate_ = 0.05;
+    onset_minimum_threshold_ = 0.1;
+    onset_threshold_ = onset_minimum_threshold_;
+
+    setup_done_ = true;
 }
 
 //--------------------------------------------------------------
@@ -38,7 +42,7 @@ void ofApp::draw(){
     ofSetColor(0, 90, 60);
     ofFill();
 
-    ofDrawBitmapString("sample rate: "+ofToString(sample_rate_) + " hz", 10, 20);
+    ofDrawBitmapString("onset threshold: "+ofToString(onset_threshold_), 10, 20);
     ofDrawBitmapString("kick: "+ofToString(beat_.kick()), 10, 40);
     ofDrawBitmapString("snare: "+ofToString(beat_.snare()), 10, 60);
     ofDrawBitmapString("hihat: "+ofToString(beat_.hihat()), 10, 80);
@@ -70,6 +74,13 @@ void ofApp::audioReceived(float* input, int bufferSize, int nChannels) {
     gist_.processAudio(buffer, bufferSize, nChannels, sample_rate_);
 
     calculateVolume(input, bufferSize);
+
+    // detect onset
+    onset_threshold_ = ofLerp(onset_threshold_, onset_minimum_threshold_, onset_decay_rate_);
+    if (current_vol_ > onset_threshold_) {
+        // onset detected!
+        onset_threshold_ = current_vol_;
+    }
 }
 
 void ofApp::calculateVolume(float *input, int bufferSize) {
@@ -99,7 +110,6 @@ void ofApp::calculateVolume(float *input, int bufferSize) {
 void ofApp::onNoteOn(GistEvent &e){
     //noteOnRadius = 100;
 };
-
 
 void ofApp::onNoteOff(GistEvent &e){
     //noteOnRadius = 0;
