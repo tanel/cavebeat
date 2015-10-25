@@ -6,6 +6,11 @@ void ofApp::setup(){
 
     sample_rate_ = 44100;
 
+    // 0 output channels,
+    // 2 input channels
+    // 44100 samples per second
+    // N samples per buffer
+    // 4 num buffers (latency)
     ofSoundStreamSetup(0, 2, this, sample_rate_, beat_.getBufferSize(), 4);
 
     font_.loadFont("Batang.ttf", 160, true, true, true);
