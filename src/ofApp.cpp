@@ -83,7 +83,6 @@ void ofApp::draw(){
 
     ofSetColor(225);
     ofDrawBitmapString("Scaled average vol (0-100): " + ofToString(scaled_vol_ * 100.0, 0), 4, 18);
-    ofRect(0, 0, 400, 400);
 
     ofSetColor(245, 58, 135);
     ofFill();
