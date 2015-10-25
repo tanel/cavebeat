@@ -1,5 +1,7 @@
 #include "ofApp.h"
 
+#define kVolHistorySize (400)
+
 //--------------------------------------------------------------
 void ofApp::setup(){
     ofBackground(0, 0, 0);
@@ -21,7 +23,7 @@ void ofApp::setup(){
     // Volume
     left.assign(beat_.getBufferSize(), 0.0);
     right.assign(beat_.getBufferSize(), 0.0);
-    vol_history_.assign(400, 0.0);
+    vol_history_.assign(kVolHistorySize, 0.0);
     current_vol_ = 0;
     smoothed_vol_     = 0.0;
     scaled_vol_		= 0.0;
@@ -40,6 +42,17 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
     beat_.update(ofGetElapsedTimeMillis());
+
+    //lets scale the vol up to a 0-1 range
+    scaled_vol_ = ofMap(smoothed_vol_, 0.0, 0.17, 0.0, 1.0, true);
+
+    //lets record the volume into an array
+    vol_history_.push_back(scaled_vol_);
+
+    //if we are bigger the the size we want to record - lets drop the oldest value
+    if( vol_history_.size() >= kVolHistorySize ){
+        vol_history_.erase(vol_history_.begin(), vol_history_.begin()+1);
+    }
 }
 
 //--------------------------------------------------------------
@@ -62,6 +75,33 @@ void ofApp::draw(){
         std::string text = ofToString(i) + ") " + ofToString(hz) + " hz " + ofToString(selectedBand);
         ofDrawBitmapString(text, 10, 140 + (20*i));
     }
+
+    // draw the average volume:
+    ofPushStyle();
+    ofPushMatrix();
+    ofTranslate(565, 170, 0);
+
+    ofSetColor(225);
+    ofDrawBitmapString("Scaled average vol (0-100): " + ofToString(scaled_vol_ * 100.0, 0), 4, 18);
+    ofRect(0, 0, 400, 400);
+
+    ofSetColor(245, 58, 135);
+    ofFill();
+    ofCircle(200, 200, scaled_vol_ * 190.0f);
+
+    //lets draw the volume history as a graph
+    ofBeginShape();
+    for (unsigned int i = 0; i < vol_history_.size(); i++){
+        if( i == 0 ) ofVertex(i, 400);
+
+        ofVertex(i, 400 - vol_history_[i] * 70);
+
+        if( i == vol_history_.size() -1 ) ofVertex(i, 400);
+    }
+    ofEndShape(false);
+
+    ofPopMatrix();
+    ofPopStyle();
 }
 
 void ofApp::audioReceived(float* input, int bufferSize, int nChannels) {
