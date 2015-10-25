@@ -8,7 +8,13 @@
 class ofApp : public ofBaseApp{
 
 public:
-    ofApp() : setup_done_(false) {}
+    ofApp()
+    : gist_event_energy_(0)
+    , gist_event_frequency_(0)
+    , gist_event_note_(0)
+    , gist_event_onset_amount_(0)
+    , setup_done_(false) {}
+
     void setup();
     void update();
     void draw();
@@ -51,6 +57,12 @@ private:
     float onset_threshold_;
     float onset_minimum_threshold_;
     float onset_decay_rate_;
+
+    // gist event
+    float gist_event_energy_;
+    float gist_event_frequency_;
+    float gist_event_note_;
+    float gist_event_onset_amount_;
 
     bool setup_done_;
 };

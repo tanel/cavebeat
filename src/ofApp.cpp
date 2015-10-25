@@ -67,6 +67,11 @@ void ofApp::draw(){
     ofDrawBitmapString("current vol: "+ofToString(current_vol_), 10, 100);
     ofDrawBitmapString("smoothed vol: "+ofToString(smoothed_vol_), 10, 120);
 
+    ofDrawBitmapString("energy: "+ofToString(gist_event_energy_), 300, 20);
+    ofDrawBitmapString("frequency: "+ofToString(gist_event_frequency_), 300, 40);
+    ofDrawBitmapString("note: "+ofToString(gist_event_note_), 300, 60);
+    ofDrawBitmapString("onset amount: "+ofToString(gist_event_onset_amount_), 300, 80);
+
     const int kNumberOfBands = 32;
 
     for (int i = 0; i < kNumberOfBands; i++) {
@@ -76,25 +81,73 @@ void ofApp::draw(){
         ofDrawBitmapString(text, 10, 140 + (20*i));
     }
 
+    ofNoFill();
+
+    // draw the left channel:
+    ofPushStyle();
+    ofPushMatrix();
+    ofTranslate(565, 20, 0);
+
+    ofSetColor(225);
+    ofDrawBitmapString("Left Channel", 4, 18);
+
+    ofSetLineWidth(1);
+    ofRect(0, 0, 440, 200);
+
+    ofSetColor(245, 58, 135);
+    ofSetLineWidth(3);
+
+    ofBeginShape();
+    for (unsigned int i = 0; i < left.size(); i++){
+        ofVertex(i*2, 100 -left[i]*180.0f);
+    }
+    ofEndShape(false);
+
+    ofPopMatrix();
+    ofPopStyle();
+
+    // draw the right channel:
+    ofPushStyle();
+    ofPushMatrix();
+    ofTranslate(565, 220, 0);
+
+    ofSetColor(225);
+    ofDrawBitmapString("Right Channel", 4, 18);
+
+    ofSetLineWidth(1);
+    ofRect(0, 0, 440, 200);
+
+    ofSetColor(245, 58, 135);
+    ofSetLineWidth(3);
+
+    ofBeginShape();
+    for (unsigned int i = 0; i < right.size(); i++){
+        ofVertex(i*2, 100 -right[i]*180.0f);
+    }
+    ofEndShape(false);
+
+    ofPopMatrix();
+    ofPopStyle();
+
     // draw the average volume:
     ofPushStyle();
     ofPushMatrix();
-    ofTranslate(565, 170, 0);
+    ofTranslate(565, 420, 0);
 
     ofSetColor(225);
     ofDrawBitmapString("Scaled average vol (0-100): " + ofToString(scaled_vol_ * 100.0, 0), 4, 18);
 
     ofSetColor(245, 58, 135);
-    ofCircle(200, 200, scaled_vol_ * 190.0f);
+    ofCircle(200, 100, scaled_vol_ * 100.0f);
 
     //lets draw the volume history as a graph
     ofBeginShape();
     for (unsigned int i = 0; i < vol_history_.size(); i++){
-        if( i == 0 ) ofVertex(i, 400);
+        if( i == 0 ) ofVertex(i, 300);
 
-        ofVertex(i, 400 - vol_history_[i] * 70);
+        ofVertex(i, 300 - vol_history_[i] * 70);
 
-        if( i == vol_history_.size() -1 ) ofVertex(i, 400);
+        if( i == vol_history_.size() -1 ) ofVertex(i, 300);
     }
     ofEndShape(false);
 
@@ -151,11 +204,13 @@ void ofApp::calculateVolume(float *input, int bufferSize) {
 }
 
 void ofApp::onNoteOn(GistEvent &e){
-    //noteOnRadius = 100;
+    gist_event_energy_ = e.energy;
+    gist_event_frequency_ = e.frequency;
+    gist_event_note_ = e.note;
+    gist_event_onset_amount_ = e.onsetAmount;
 };
 
 void ofApp::onNoteOff(GistEvent &e){
-    //noteOnRadius = 0;
 };
 
 //--------------------------------------------------------------
@@ -195,7 +250,6 @@ void ofApp::windowResized(int w, int h){
 
 //--------------------------------------------------------------
 void ofApp::gotMessage(ofMessage msg){
-
 }
 
 //--------------------------------------------------------------
