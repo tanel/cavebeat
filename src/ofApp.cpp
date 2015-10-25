@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    ofBackground(255,255,255);
+    ofBackground(0, 0, 0);
 
     sample_rate_ = 44100;
 
@@ -39,7 +39,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofSetColor(0, 90, 60);
+    ofSetColor(255, 255, 255);
     ofFill();
 
     ofDrawBitmapString("onset threshold: "+ofToString(onset_threshold_), 10, 20);
