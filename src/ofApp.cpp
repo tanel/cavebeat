@@ -85,7 +85,6 @@ void ofApp::draw(){
     ofDrawBitmapString("Scaled average vol (0-100): " + ofToString(scaled_vol_ * 100.0, 0), 4, 18);
 
     ofSetColor(245, 58, 135);
-    ofFill();
     ofCircle(200, 200, scaled_vol_ * 190.0f);
 
     //lets draw the volume history as a graph
