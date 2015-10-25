@@ -13,6 +13,7 @@ public:
     , gist_event_frequency_(0)
     , gist_event_note_(0)
     , gist_event_onset_amount_(0)
+    , gist_event_note_on_(false)
     , setup_done_(false) {}
 
     void setup();
@@ -63,6 +64,7 @@ private:
     float gist_event_frequency_;
     float gist_event_note_;
     float gist_event_onset_amount_;
+    bool gist_event_note_on_;
 
     bool setup_done_;
 };

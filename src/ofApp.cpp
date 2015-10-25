@@ -67,10 +67,12 @@ void ofApp::draw(){
     ofDrawBitmapString("current vol: "+ofToString(current_vol_), 10, 100);
     ofDrawBitmapString("smoothed vol: "+ofToString(smoothed_vol_), 10, 120);
 
-    ofDrawBitmapString("energy: "+ofToString(gist_event_energy_), 300, 20);
-    ofDrawBitmapString("frequency: "+ofToString(gist_event_frequency_), 300, 40);
-    ofDrawBitmapString("note: "+ofToString(gist_event_note_), 300, 60);
-    ofDrawBitmapString("onset amount: "+ofToString(gist_event_onset_amount_), 300, 80);
+    ofDrawBitmapString("GIST ONSET EVENT", 300, 20);
+    ofDrawBitmapString("energy: "+ofToString(gist_event_energy_), 300, 40);
+    ofDrawBitmapString("frequency: "+ofToString(gist_event_frequency_), 300, 60);
+    ofDrawBitmapString("note: "+ofToString(gist_event_note_), 300, 80);
+    ofDrawBitmapString("onset amount: "+ofToString(gist_event_onset_amount_), 300, 100);
+    ofDrawBitmapString("note on: "+ofToString(gist_event_note_on_), 300, 120);
 
     const int kNumberOfBands = 32;
 
@@ -208,9 +210,17 @@ void ofApp::onNoteOn(GistEvent &e){
     gist_event_frequency_ = e.frequency;
     gist_event_note_ = e.note;
     gist_event_onset_amount_ = e.onsetAmount;
+
+    gist_event_note_on_ = true;
 };
 
 void ofApp::onNoteOff(GistEvent &e){
+    gist_event_energy_ = e.energy;
+    gist_event_frequency_ = e.frequency;
+    gist_event_note_ = e.note;
+    gist_event_onset_amount_ = e.onsetAmount;
+
+    gist_event_note_on_ = false;
 };
 
 //--------------------------------------------------------------
