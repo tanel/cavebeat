@@ -23,6 +23,19 @@ void ofApp::setup(){
     gist_.setUseForOnsetDetection(GIST_PEAK_ENERGY);
     gist_.setThreshold(GIST_PEAK_ENERGY, .05);
 
+    gist_.setDetect(GIST_PITCH);
+    gist_.setDetect(GIST_NOTE);
+    gist_.setDetect(GIST_ROOT_MEAN_SQUARE);
+    gist_.setDetect(GIST_PEAK_ENERGY);
+    gist_.setDetect(GIST_SPECTRAL_CREST);
+    gist_.setDetect(GIST_ZERO_CROSSING_RATE);
+    gist_.setDetect(GIST_SPECTRAL_CENTROID);
+    gist_.setDetect(GIST_SPECTRAL_FLATNESS);
+    gist_.setDetect(GIST_SPECTRAL_DIFFERENCE);
+    gist_.setDetect(GIST_SPECTRAL_DIFFERENCE_COMPLEX);
+    gist_.setDetect(GIST_SPECTRAL_DIFFERENCE_HALFWAY);
+    gist_.setDetect(GIST_HIGH_FREQUENCY_CONTENT);
+
     // Volume
     left.assign(beat_.getBufferSize(), 0.0);
     right.assign(beat_.getBufferSize(), 0.0);
@@ -86,6 +99,9 @@ void ofApp::draw(){
 }
 
 void ofApp::drawHUD() {
+    // FIXME: show beat ranges too (have couple of predefined ranges or
+    // something, for example 0-10, 20-32 etc.
+
     // draw debug variables
     ofDrawBitmapString("onset threshold: "+ofToString(onset_threshold_), 10, 20);
     ofDrawBitmapString("kick: "+ofToString(beat_.kick()), 10, 40);
@@ -115,16 +131,36 @@ void ofApp::drawHUD() {
     ofFill();
     ofRect(150, 70, ofMap(beat_.hihat(), 0, 1, 0, 100), 10);
 
+    // Draw Gist onset event info
     ofSetColor(255, 255, 255);
-
     ofDrawBitmapString("GIST ONSET EVENT", 300, 20);
     ofDrawBitmapString("energy: "+ofToString(gist_event_energy_), 300, 40);
     ofDrawBitmapString("frequency: "+ofToString(gist_event_frequency_), 300, 60);
     ofDrawBitmapString("onset amount: "+ofToString(gist_event_onset_amount_), 300, 80);
     ofDrawBitmapString("note on: "+ofToString(gist_event_note_on_), 300, 100);
 
+    // Key hints
     ofDrawBitmapString("press 'h' to toggle HUD", 300, 140);
 
+    // Draw Gist info
+    ofSetColor(255, 255, 255);
+    ofDrawBitmapString("GIST FEATURES", 300, 180);
+    ofDrawBitmapString("pitch: "+ofToString(gist_.getValue(GIST_PITCH)), 300, 200);
+    ofDrawBitmapString("note: "+ofToString(gist_.getValue(GIST_NOTE)), 300, 220);
+    ofDrawBitmapString("root mean square: "+ofToString(gist_.getValue(GIST_ROOT_MEAN_SQUARE)), 300, 240);
+    ofDrawBitmapString("peak energy: "+ofToString(gist_.getValue(GIST_PEAK_ENERGY)), 300, 260);
+    ofDrawBitmapString("special crest: "+ofToString(gist_.getValue(GIST_SPECTRAL_CREST)), 300, 280);
+    ofDrawBitmapString("zero crossing rate: "+ofToString(gist_.getValue(GIST_ZERO_CROSSING_RATE)), 300, 300);
+    ofDrawBitmapString("SPECTRAL FEATURES", 300, 320);
+    ofDrawBitmapString("centroid: "+ofToString(gist_.getValue(GIST_SPECTRAL_CENTROID)), 300, 340);
+    ofDrawBitmapString("flatness: "+ofToString(gist_.getValue(GIST_SPECTRAL_FLATNESS)), 300, 360);
+    ofDrawBitmapString("difference: "+ofToString(gist_.getValue(GIST_SPECTRAL_DIFFERENCE)), 300, 380);
+    ofDrawBitmapString("difference complex: "+ofToString(gist_.getValue(GIST_SPECTRAL_DIFFERENCE_COMPLEX)), 300, 400);
+    ofDrawBitmapString("difference halfway: "+ofToString(gist_.getValue(GIST_SPECTRAL_DIFFERENCE_HALFWAY)), 300, 420);
+    ofDrawBitmapString("high freq. content: "+ofToString(gist_.getValue(GIST_HIGH_FREQUENCY_CONTENT)), 300, 440);
+
+    // Draw individual bands as bars, also show frequencies and values
+    // for each band.
     ofPushStyle();
     ofSetRectMode(OF_RECTMODE_CORNER);
     ofSetLineWidth(2);
@@ -213,9 +249,11 @@ void ofApp::drawHUD() {
     ofDrawBitmapString("Scaled average vol (0-100): " + ofToString(scaled_vol_ * 100.0, 0), 4, 18);
 
     ofSetColor(245, 58, 135);
+    ofFill();
     ofCircle(200, 100, scaled_vol_ * 100.0f);
 
     //lets draw the volume history as a graph
+    ofNoFill();
     ofBeginShape();
     for (unsigned int i = 0; i < vol_history_.size(); i++){
         if( i == 0 ) ofVertex(i, 300);
