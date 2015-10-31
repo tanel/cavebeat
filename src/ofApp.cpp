@@ -80,6 +80,12 @@ void ofApp::draw(){
     ofSetColor(255, 255, 255);
     ofFill();
 
+    if (draw_hud_) {
+        drawHUD();
+    }
+}
+
+void ofApp::drawHUD() {
     // draw debug variables
     ofDrawBitmapString("onset threshold: "+ofToString(onset_threshold_), 10, 20);
     ofDrawBitmapString("kick: "+ofToString(beat_.kick()), 10, 40);
@@ -91,9 +97,10 @@ void ofApp::draw(){
     ofDrawBitmapString("GIST ONSET EVENT", 300, 20);
     ofDrawBitmapString("energy: "+ofToString(gist_event_energy_), 300, 40);
     ofDrawBitmapString("frequency: "+ofToString(gist_event_frequency_), 300, 60);
-    ofDrawBitmapString("note: "+ofToString(gist_event_note_), 300, 80);
-    ofDrawBitmapString("onset amount: "+ofToString(gist_event_onset_amount_), 300, 100);
-    ofDrawBitmapString("note on: "+ofToString(gist_event_note_on_), 300, 120);
+    ofDrawBitmapString("onset amount: "+ofToString(gist_event_onset_amount_), 300, 80);
+    ofDrawBitmapString("note on: "+ofToString(gist_event_note_on_), 300, 100);
+
+    ofDrawBitmapString("press 'h' to toggle HUD", 300, 140);
 
     ofPushStyle();
     ofSetRectMode(OF_RECTMODE_CORNER);
@@ -260,7 +267,9 @@ void ofApp::onNoteOff(GistEvent &e){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    if ('h' == key) {
+        draw_hud_ = !draw_hud_;
+    }
 }
 
 //--------------------------------------------------------------

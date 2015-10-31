@@ -14,6 +14,7 @@ public:
     , gist_event_note_(0)
     , gist_event_onset_amount_(0)
     , gist_event_note_on_(false)
+    , draw_hud_(true)
     , setup_done_(false) {}
 
     void setup();
@@ -36,6 +37,7 @@ public:
     void onNoteOff(GistEvent &e);
 
 private:
+    void drawHUD();
 
     ofxBeat beat_;
     int loudest_band_;
@@ -66,6 +68,8 @@ private:
     float gist_event_note_;
     float gist_event_onset_amount_;
     bool gist_event_note_on_;
+
+    bool draw_hud_;
 
     bool setup_done_;
 };
