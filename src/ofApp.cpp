@@ -107,16 +107,24 @@ void ofApp::drawHUD() {
     ofSetLineWidth(2);
     int volumeRange = 1;
     for (int i = 0; i < kNumberOfBands; i++) {
-        if (i== loudest_band_) {
-            ofSetColor(255,0,0);
-        } else {
-            ofSetColor(100,100,200);
-        }
         float selectedBand = beat_.getBand(i);
+
+        ofSetColor(255, 255, 255);
+
         float hz = ((i+1) * sample_rate_) / beat_.getBufferSize();
         std::string text = ofToString(i) + ") " + ofToString(hz) + " hz " + ofToString(selectedBand);
         ofDrawBitmapString(text, 10, 140 + (20*i));
-        ofNoFill();
+
+        if (i== loudest_band_) {
+            ofSetColor(255, 0, 10);
+        } else {
+            ofSetColor(51, 204, 51);
+        }
+        if (beat_.isBeat(i)) {
+            ofFill();
+        } else {
+            ofNoFill();
+        }
         float x = ofGetWidth()*((float)i/kNumberOfBands);
         float y = ofGetHeight()-20;
         float w = ofGetWidth()/kNumberOfBands;
