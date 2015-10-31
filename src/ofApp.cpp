@@ -1,10 +1,13 @@
 #include "ofApp.h"
 
 #define kVolHistorySize (400)
+#define kNumberOfBands (32)
 
 //--------------------------------------------------------------
 void ofApp::setup(){
     ofBackground(0, 0, 0);
+
+    loudest_band_ = 0;
 
     sample_rate_ = 44100;
 
@@ -28,6 +31,10 @@ void ofApp::setup(){
     smoothed_vol_     = 0.0;
     scaled_vol_		= 0.0;
 
+    // Enable beat detection
+    beat_.enableBeatDetect();
+
+    // Listen to Gist events
     ofAddListener(GistEvent::ON,this,&ofApp::onNoteOn);
     ofAddListener(GistEvent::OFF,this,&ofApp::onNoteOff);
 
@@ -53,13 +60,27 @@ void ofApp::update(){
     if( vol_history_.size() >= kVolHistorySize ){
         vol_history_.erase(vol_history_.begin(), vol_history_.begin()+1);
     }
+
+    // find loudest band
+    float max = 0;
+    int new_loudest = -1;
+    for (int i = 0; i < kNumberOfBands; i++) {
+        float selectedBand = beat_.getBand(i);
+        if (selectedBand > max) {
+            max = selectedBand;
+            new_loudest = i;
+        }
+    }
+    loudest_band_ = new_loudest;
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    // Draw black background
     ofSetColor(255, 255, 255);
     ofFill();
 
+    // draw debug variables
     ofDrawBitmapString("onset threshold: "+ofToString(onset_threshold_), 10, 20);
     ofDrawBitmapString("kick: "+ofToString(beat_.kick()), 10, 40);
     ofDrawBitmapString("snare: "+ofToString(beat_.snare()), 10, 60);
@@ -74,14 +95,28 @@ void ofApp::draw(){
     ofDrawBitmapString("onset amount: "+ofToString(gist_event_onset_amount_), 300, 100);
     ofDrawBitmapString("note on: "+ofToString(gist_event_note_on_), 300, 120);
 
-    const int kNumberOfBands = 32;
-
+    ofPushStyle();
+    ofSetRectMode(OF_RECTMODE_CORNER);
+    ofSetLineWidth(2);
+    int volumeRange = 1;
     for (int i = 0; i < kNumberOfBands; i++) {
+        if (i== loudest_band_) {
+            ofSetColor(255,0,0);
+        } else {
+            ofSetColor(100,100,200);
+        }
         float selectedBand = beat_.getBand(i);
         float hz = ((i+1) * sample_rate_) / beat_.getBufferSize();
         std::string text = ofToString(i) + ") " + ofToString(hz) + " hz " + ofToString(selectedBand);
         ofDrawBitmapString(text, 10, 140 + (20*i));
+        ofNoFill();
+        float x = ofGetWidth()*((float)i/kNumberOfBands);
+        float y = ofGetHeight()-20;
+        float w = ofGetWidth()/kNumberOfBands;
+        float h = -ofMap(selectedBand, 0, volumeRange, 0, ofGetHeight() / 10);
+        ofRect(x, y, w, h);
     }
+    ofPopStyle();
 
     ofNoFill();
 
@@ -255,7 +290,7 @@ void ofApp::mouseReleased(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h){
-
+    
 }
 
 //--------------------------------------------------------------

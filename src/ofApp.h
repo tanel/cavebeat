@@ -38,6 +38,7 @@ public:
 private:
 
     ofxBeat beat_;
+    int loudest_band_;
 
     ofTrueTypeFont font_;
 
