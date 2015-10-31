@@ -94,6 +94,29 @@ void ofApp::drawHUD() {
     ofDrawBitmapString("current vol: "+ofToString(current_vol_), 10, 100);
     ofDrawBitmapString("smoothed vol: "+ofToString(smoothed_vol_), 10, 120);
 
+    // kick bar
+    ofSetColor(102, 102, 255);
+    ofNoFill();
+    ofRect(150, 30, 100, 10);
+    ofFill();
+    ofRect(150, 30, ofMap(beat_.kick(), 0, 1, 0, 100), 10);
+
+    // snare bar
+    ofSetColor(102, 102, 255);
+    ofNoFill();
+    ofRect(150, 50, 100, 10);
+    ofFill();
+    ofRect(150, 50, ofMap(beat_.snare(), 0, 1, 0, 100), 10);
+
+    // hihat bar
+    ofSetColor(102, 102, 255);
+    ofNoFill();
+    ofRect(150, 70, 100, 10);
+    ofFill();
+    ofRect(150, 70, ofMap(beat_.hihat(), 0, 1, 0, 100), 10);
+
+    ofSetColor(255, 255, 255);
+
     ofDrawBitmapString("GIST ONSET EVENT", 300, 20);
     ofDrawBitmapString("energy: "+ofToString(gist_event_energy_), 300, 40);
     ofDrawBitmapString("frequency: "+ofToString(gist_event_frequency_), 300, 60);
@@ -105,7 +128,7 @@ void ofApp::drawHUD() {
     ofPushStyle();
     ofSetRectMode(OF_RECTMODE_CORNER);
     ofSetLineWidth(2);
-    int volumeRange = 1;
+    const int kVolumeRange = 1;
     for (int i = 0; i < kNumberOfBands; i++) {
         float selectedBand = beat_.getBand(i);
 
@@ -128,7 +151,7 @@ void ofApp::drawHUD() {
         float x = ofGetWidth()*((float)i/kNumberOfBands);
         float y = ofGetHeight()-20;
         float w = ofGetWidth()/kNumberOfBands;
-        float h = -ofMap(selectedBand, 0, volumeRange, 0, ofGetHeight() / 10);
+        float h = -ofMap(selectedBand, 0, kVolumeRange, 0, ofGetHeight() / 10);
         ofRect(x, y, w, h);
     }
     ofPopStyle();
