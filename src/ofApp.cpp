@@ -59,9 +59,12 @@ void ofApp::setup(){
     // setup fonts
     ofTrueTypeFont::setGlobalDpi(72);
 
-    hudFont.loadFont("verdana.ttf", 12, true, true);
+    hudFont.loadFont("cooperBlack.ttf", 14, true, true);
     //hudFont.setLineHeight(14.0f);
     //hudFont.setLetterSpacing(1.037);
+
+    // allocate FBO
+    fbo.allocate(ofGetWidth(), ofGetHeight());
 
     setup_done_ = true;
 }
@@ -96,6 +99,9 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    fbo.begin();
+    ofClear(255, 0);
+
     // Draw black background
     ofSetColor(255, 255, 255);
     ofFill();
@@ -103,6 +109,10 @@ void ofApp::draw(){
     if (draw_hud_) {
         drawHUD();
     }
+
+    fbo.end();
+
+    fbo.draw(0, 0);
 }
 
 void ofApp::drawHUD() {
