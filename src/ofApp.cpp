@@ -8,9 +8,11 @@ void ofApp::setup(){
     // ofFX related stuff
     ofEnableAlphaBlending();
     beat = 0.0;
-    nFrag = -1;
+    nFrag = 0;
     selection = -1;
     setupEffects();
+
+    draw_hud_ = false;
 
     ofBackground(0, 0, 0);
 
@@ -146,6 +148,9 @@ void ofApp::draw(){
         drawHUD();
     }
 
+    fbo.end();
+    fbo.draw(0, 0);
+
     // Draw effects
     ofBackground(0);
     ofPushStyle();
@@ -187,7 +192,6 @@ void ofApp::draw(){
 
     ofPopStyle();
 
-    fbo.end();
     fbo.draw(0, 0);
 
     title += " running effect " + ofToString(nFrag) + " at " + ofToString(ofGetFrameRate(),1) + " fps";
@@ -1603,4 +1607,6 @@ void ofApp::setupEffects() {
     glow.allocate(ofGetWidth(), ofGetHeight());
     gaussianBlur.allocate(ofGetWidth(), ofGetHeight());
     oldtv.allocate(ofGetWidth(), ofGetHeight());
+
+    sandbox.setCode( frags[nFrag] );
 }
