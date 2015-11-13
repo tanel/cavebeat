@@ -18,11 +18,11 @@ void ofApp::setup(){
     // 4 num buffers (latency)
     ofSoundStreamSetup(0, 2, this, sample_rate_, beat_.getBufferSize(), 4);
 
-    font_.loadFont("Batang.ttf", 160, true, true, true);
-
+    // configure Gist.
     gist_.setUseForOnsetDetection(GIST_PEAK_ENERGY);
     gist_.setThreshold(GIST_PEAK_ENERGY, .05);
 
+    // detect all Gist features
     gist_.setDetect(GIST_PITCH);
     gist_.setDetect(GIST_NOTE);
     gist_.setDetect(GIST_ROOT_MEAN_SQUARE);
@@ -55,6 +55,13 @@ void ofApp::setup(){
     onset_decay_rate_ = 0.05;
     onset_minimum_threshold_ = 0.1;
     onset_threshold_ = onset_minimum_threshold_;
+
+    // setup fonts
+    ofTrueTypeFont::setGlobalDpi(72);
+
+    hudFont.loadFont("verdana.ttf", 12, true, true);
+    //hudFont.setLineHeight(14.0f);
+    //hudFont.setLetterSpacing(1.037);
 
     setup_done_ = true;
 }
@@ -103,12 +110,12 @@ void ofApp::drawHUD() {
     // something, for example 0-10, 20-32 etc.
 
     // draw debug variables
-    ofDrawBitmapString("onset threshold: "+ofToString(onset_threshold_), 10, 20);
-    ofDrawBitmapString("kick: "+ofToString(beat_.kick()), 10, 40);
-    ofDrawBitmapString("snare: "+ofToString(beat_.snare()), 10, 60);
-    ofDrawBitmapString("hihat: "+ofToString(beat_.hihat()), 10, 80);
-    ofDrawBitmapString("current vol: "+ofToString(current_vol_), 10, 100);
-    ofDrawBitmapString("smoothed vol: "+ofToString(smoothed_vol_), 10, 120);
+    hudFont.drawString("onset threshold: "+ofToString(onset_threshold_), 10, 20);
+    hudFont.drawString("kick: "+ofToString(beat_.kick()), 10, 40);
+    hudFont.drawString("snare: "+ofToString(beat_.snare()), 10, 60);
+    hudFont.drawString("hihat: "+ofToString(beat_.hihat()), 10, 80);
+    hudFont.drawString("current vol: "+ofToString(current_vol_), 10, 100);
+    hudFont.drawString("smoothed vol: "+ofToString(smoothed_vol_), 10, 120);
 
     // kick bar
     ofSetColor(102, 102, 255);
@@ -133,31 +140,31 @@ void ofApp::drawHUD() {
 
     // Draw Gist onset event info
     ofSetColor(255, 255, 255);
-    ofDrawBitmapString("GIST ONSET EVENT", 300, 20);
-    ofDrawBitmapString("energy: "+ofToString(gist_event_energy_), 300, 40);
-    ofDrawBitmapString("frequency: "+ofToString(gist_event_frequency_), 300, 60);
-    ofDrawBitmapString("onset amount: "+ofToString(gist_event_onset_amount_), 300, 80);
-    ofDrawBitmapString("note on: "+ofToString(gist_event_note_on_), 300, 100);
+    hudFont.drawString("GIST ONSET EVENT", 300, 20);
+    hudFont.drawString("energy: "+ofToString(gist_event_energy_), 300, 40);
+    hudFont.drawString("frequency: "+ofToString(gist_event_frequency_), 300, 60);
+    hudFont.drawString("onset amount: "+ofToString(gist_event_onset_amount_), 300, 80);
+    hudFont.drawString("note on: "+ofToString(gist_event_note_on_), 300, 100);
 
     // Key hints
-    ofDrawBitmapString("press 'h' to toggle HUD", 300, 140);
+    hudFont.drawString("press 'h' to toggle HUD", 300, 140);
 
     // Draw Gist info
     ofSetColor(255, 255, 255);
-    ofDrawBitmapString("GIST FEATURES", 300, 180);
-    ofDrawBitmapString("pitch: "+ofToString(gist_.getValue(GIST_PITCH)), 300, 200);
-    ofDrawBitmapString("note: "+ofToString(gist_.getValue(GIST_NOTE)), 300, 220);
-    ofDrawBitmapString("root mean square: "+ofToString(gist_.getValue(GIST_ROOT_MEAN_SQUARE)), 300, 240);
-    ofDrawBitmapString("peak energy: "+ofToString(gist_.getValue(GIST_PEAK_ENERGY)), 300, 260);
-    ofDrawBitmapString("special crest: "+ofToString(gist_.getValue(GIST_SPECTRAL_CREST)), 300, 280);
-    ofDrawBitmapString("zero crossing rate: "+ofToString(gist_.getValue(GIST_ZERO_CROSSING_RATE)), 300, 300);
-    ofDrawBitmapString("SPECTRAL FEATURES", 300, 320);
-    ofDrawBitmapString("centroid: "+ofToString(gist_.getValue(GIST_SPECTRAL_CENTROID)), 300, 340);
-    ofDrawBitmapString("flatness: "+ofToString(gist_.getValue(GIST_SPECTRAL_FLATNESS)), 300, 360);
-    ofDrawBitmapString("difference: "+ofToString(gist_.getValue(GIST_SPECTRAL_DIFFERENCE)), 300, 380);
-    ofDrawBitmapString("difference complex: "+ofToString(gist_.getValue(GIST_SPECTRAL_DIFFERENCE_COMPLEX)), 300, 400);
-    ofDrawBitmapString("difference halfway: "+ofToString(gist_.getValue(GIST_SPECTRAL_DIFFERENCE_HALFWAY)), 300, 420);
-    ofDrawBitmapString("high freq. content: "+ofToString(gist_.getValue(GIST_HIGH_FREQUENCY_CONTENT)), 300, 440);
+    hudFont.drawString("GIST FEATURES", 300, 180);
+    hudFont.drawString("pitch: "+ofToString(gist_.getValue(GIST_PITCH)), 300, 200);
+    hudFont.drawString("note: "+ofToString(gist_.getValue(GIST_NOTE)), 300, 220);
+    hudFont.drawString("root mean square: "+ofToString(gist_.getValue(GIST_ROOT_MEAN_SQUARE)), 300, 240);
+    hudFont.drawString("peak energy: "+ofToString(gist_.getValue(GIST_PEAK_ENERGY)), 300, 260);
+    hudFont.drawString("special crest: "+ofToString(gist_.getValue(GIST_SPECTRAL_CREST)), 300, 280);
+    hudFont.drawString("zero crossing rate: "+ofToString(gist_.getValue(GIST_ZERO_CROSSING_RATE)), 300, 300);
+    hudFont.drawString("SPECTRAL FEATURES", 300, 320);
+    hudFont.drawString("centroid: "+ofToString(gist_.getValue(GIST_SPECTRAL_CENTROID)), 300, 340);
+    hudFont.drawString("flatness: "+ofToString(gist_.getValue(GIST_SPECTRAL_FLATNESS)), 300, 360);
+    hudFont.drawString("difference: "+ofToString(gist_.getValue(GIST_SPECTRAL_DIFFERENCE)), 300, 380);
+    hudFont.drawString("difference complex: "+ofToString(gist_.getValue(GIST_SPECTRAL_DIFFERENCE_COMPLEX)), 300, 400);
+    hudFont.drawString("difference halfway: "+ofToString(gist_.getValue(GIST_SPECTRAL_DIFFERENCE_HALFWAY)), 300, 420);
+    hudFont.drawString("high freq. content: "+ofToString(gist_.getValue(GIST_HIGH_FREQUENCY_CONTENT)), 300, 440);
 
     // Draw individual bands as bars, also show frequencies and values
     // for each band.
@@ -172,7 +179,7 @@ void ofApp::drawHUD() {
 
         float hz = ((i+1) * sample_rate_) / beat_.getBufferSize();
         std::string text = ofToString(i) + ") " + ofToString(hz) + " hz " + ofToString(selectedBand);
-        ofDrawBitmapString(text, 10, 140 + (20*i));
+        hudFont.drawString(text, 10, 140 + (20*i));
 
         if (i== loudest_band_) {
             ofSetColor(255, 0, 10);
@@ -200,7 +207,7 @@ void ofApp::drawHUD() {
     ofTranslate(565, 20, 0);
 
     ofSetColor(225);
-    ofDrawBitmapString("Left Channel", 4, 18);
+    hudFont.drawString("Left Channel", 4, 18);
 
     ofSetLineWidth(1);
     ofRect(0, 0, 440, 200);
@@ -223,7 +230,7 @@ void ofApp::drawHUD() {
     ofTranslate(565, 220, 0);
 
     ofSetColor(225);
-    ofDrawBitmapString("Right Channel", 4, 18);
+    hudFont.drawString("Right Channel", 4, 18);
 
     ofSetLineWidth(1);
     ofRect(0, 0, 440, 200);
@@ -246,7 +253,7 @@ void ofApp::drawHUD() {
     ofTranslate(565, 420, 0);
 
     ofSetColor(225);
-    ofDrawBitmapString("Scaled average vol (0-100): " + ofToString(scaled_vol_ * 100.0, 0), 4, 18);
+    hudFont.drawString("Scaled average vol (0-100): " + ofToString(scaled_vol_ * 100.0, 0), 4, 18);
 
     ofSetColor(245, 58, 135);
     ofFill();

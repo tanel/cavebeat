@@ -72,8 +72,9 @@ private:
     // HUD can be turned off entirely
     bool draw_hud_;
 
-    // Draw HUD texts using font.
-    ofTrueTypeFont verdana;
+    // Draw HUD texts using truetype font,
+    // so we can blend it with gl or something
+    ofTrueTypeFont hudFont;
 
     // Use FBO to put the picture together
     ofFbo fbo;
