@@ -69,7 +69,14 @@ private:
     float gist_event_onset_amount_;
     bool gist_event_note_on_;
 
+    // HUD can be turned off entirely
     bool draw_hud_;
+
+    // Draw HUD texts using font.
+    ofTrueTypeFont verdana;
+
+    // Use FBO to put the picture together
+    ofFbo fbo;
 
     bool setup_done_;
 };
