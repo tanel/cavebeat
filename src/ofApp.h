@@ -4,6 +4,13 @@
 
 #include "ofxBeat.h"
 #include "ofxGist.h"
+#include "ofxFXObject.h"
+#include "ofxBloom.h"
+#include "ofxGaussianBlur.h"
+#include "ofxBlur.h"
+#include "ofxBokeh.h"
+#include "ofxGlow.h"
+#include "ofxOldTv.h"
 
 class ofApp : public ofBaseApp{
 
@@ -38,6 +45,7 @@ public:
 
 private:
     void drawHUD();
+    void setupEffects();
 
     ofxBeat beat_;
     int loudest_band_;
@@ -78,6 +86,20 @@ private:
 
     // Use FBO to put the picture together
     ofFbo fbo;
+
+    // ofxFX setup
+    ofxFXObject sandbox;
+    ofxBloom    bloom;
+    ofxGaussianBlur gaussianBlur;
+    ofxBlur     blur;
+    ofxBokeh    bokeh;
+    ofxGlow     glow;
+    ofxOldTv    oldtv;
+    enum        { nTotalFrag = 19 };
+    string      frags[ nTotalFrag ];
+    string      fragsTitles[ nTotalFrag];
+    float       beat;
+    int         nFrag, selection;
 
     bool setup_done_;
 };
