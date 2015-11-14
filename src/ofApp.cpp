@@ -8,7 +8,7 @@ void ofApp::setup(){
     // ofFX related stuff
     ofEnableAlphaBlending();
     beat = 0.0;
-    nFrag = 0;
+    nFrag = 14;
     selection = -1;
     setupEffects();
 
@@ -104,6 +104,9 @@ void ofApp::update(){
         }
     }
     loudest_band_ = new_loudest;
+
+    // pass shit to sandbox shader
+    sandbox.setUniform1f("scaled_vol", scaled_vol_);
 
     // Update effects
     sandbox.update();
@@ -516,6 +519,7 @@ void ofApp::setupEffects() {
                          uniform vec2 mouse;
                          uniform vec2 resolution;
                          uniform sampler2DRect tex0;
+                         uniform float scaled_vol;
 
                          float viewAngle = 1.0;
                          float speed = 9.0;
@@ -544,6 +548,7 @@ void ofApp::setupEffects() {
                          uniform vec2 resolution;
                          uniform sampler2DRect tex0;
                          uniform sampler2DRect tex1;
+                         uniform float scaled_vol;
 
                          float pi = 3.141592653589793238462643383279;
 
@@ -567,6 +572,7 @@ void ofApp::setupEffects() {
                          uniform float time;
                          uniform vec2 mouse;
                          uniform vec2 resolution;
+                         uniform float scaled_vol;
 
                          void main( void ){
                              vec2 position = (gl_FragCoord.xy - resolution * 0.5) / resolution.yy;
@@ -599,6 +605,7 @@ void ofApp::setupEffects() {
                          uniform float time;
                          uniform vec2 mouse;
                          uniform vec2 resolution;
+                         uniform float scaled_vol;
 
                          float rand(vec2 co){
                              return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
@@ -676,6 +683,7 @@ void ofApp::setupEffects() {
                          uniform vec2 mouse;
                          uniform vec2 resolution;
                          uniform sampler2D backbuffer;
+                         uniform float scaled_vol;
 
                          vec3 mod289(vec3 x) {
                              return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -736,6 +744,7 @@ void ofApp::setupEffects() {
                          uniform float time;
                          uniform vec2 mouse;
                          uniform vec2 resolution;
+                         uniform float scaled_vol;
 
                          float getValue(vec2 p, float x2, float y2, float cmin, float cmax){
                              float x=p.x;
@@ -783,6 +792,7 @@ void ofApp::setupEffects() {
                          uniform float time;
                          uniform vec2 mouse;
                          uniform vec2 resolution;
+                         uniform float scaled_vol;
 
                          float k_PI = 3.141592654;
                          float k_MoveSpeed = 0.5;
@@ -854,6 +864,7 @@ void ofApp::setupEffects() {
                          uniform float time;
                          uniform vec2 mouse;
                          uniform vec2 resolution;
+                         uniform float scaled_vol;
 
                          float makePoint(float x,float y,float fx,float fy,float sx,float sy,float t){
                              float xx=x+sin(t*fx)*sx;
@@ -938,6 +949,7 @@ void ofApp::setupEffects() {
                          uniform vec2 resolution;
                          uniform float time;
                          uniform vec2 mouse;
+                         uniform float scaled_vol;
 
                          float PI=3.14159265;
 
@@ -1087,6 +1099,7 @@ void ofApp::setupEffects() {
                          uniform float time;
                          uniform vec2 mouse;
                          uniform vec2 resolution;
+                         uniform float scaled_vol;
 
                          void main( void ) {
                              vec2 position = (gl_FragCoord.xy - resolution * 0.5) / resolution.yy;
@@ -1113,6 +1126,7 @@ void ofApp::setupEffects() {
                           uniform float time;
                           uniform vec2 mouse;
                           uniform vec2 resolution;
+                          uniform float scaled_vol;
 
                           uniform sampler2D backbuffer;
 
@@ -1189,6 +1203,7 @@ void ofApp::setupEffects() {
                           uniform float time;
                           uniform vec2 mouse;
                           uniform vec2 resolution;
+                          uniform float scaled_vol;
 
                           void main( void ) {
                               vec2 position = ( gl_FragCoord.xy / resolution.xy ) + mouse / 4.0;
@@ -1212,6 +1227,7 @@ void ofApp::setupEffects() {
                           uniform float time;
                           uniform vec2 mouse;
                           uniform vec2 resolution;
+                          uniform float scaled_vol;
 
                           vec3 sim(vec3 p,float s);
                           vec2 rot(vec2 p,float r);
@@ -1337,6 +1353,7 @@ void ofApp::setupEffects() {
     frags[14] = STRINGIFY(
                           uniform vec2 resolution;
                           uniform float time;
+                          uniform float scaled_vol;
 
                           void main(void){
                               float x = gl_FragCoord.x;
@@ -1356,6 +1373,7 @@ void ofApp::setupEffects() {
                           uniform float time;
                           uniform vec2 mouse;
                           uniform vec2 resolution;
+                          uniform float scaled_vol;
 
                           vec3 mod289(vec3 x) {
                               return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -1424,6 +1442,7 @@ void ofApp::setupEffects() {
                           uniform float time;
                           uniform vec2 mouse;
                           uniform vec2 resolution;
+                          uniform float scaled_vol;
 
                           // How fast it animates
                           float tscale = 1.5;
@@ -1486,6 +1505,7 @@ void ofApp::setupEffects() {
                           uniform float time;
                           uniform vec2 mouse;
                           uniform vec2 resolution;
+                          uniform float scaled_vol;
 
                           vec3 permute(vec3 x) {
                               return mod((34.0 * x + 1.0) * x, 560.0);
@@ -1548,6 +1568,7 @@ void ofApp::setupEffects() {
                           uniform float time;
                           uniform vec2 resolution;
                           uniform vec2 mouse;
+                          uniform float scaled_vol;
                           
                           float border(vec2 uv, float thickness){
                               uv = fract(uv - vec2(0.5));
