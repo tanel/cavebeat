@@ -8,7 +8,7 @@ void ofApp::setup(){
     // ofFX related stuff
     ofEnableAlphaBlending();
     beat = 0.0;
-    nFrag = 14;
+    nFrag = 0;
     selection = -1;
     setupEffects();
 
