@@ -12,7 +12,7 @@ void ofApp::setup(){
     // ofFX related stuff
     ofEnableAlphaBlending();
     beat = 0.0;
-    nFrag = 7;
+    nFrag = 11;
     selection = -1;
     setupEffects();
 
@@ -112,6 +112,7 @@ void ofApp::update(){
     // pass shit to sandbox shader
     sandbox.setUniform1f("scaled_vol", scaled_vol_);
     sandbox.setUniform1f("loudest_band", loudest_band_);
+    sandbox.setUniform1f("current_vol", current_vol_);
 
     // Update effects
     sandbox.update();
@@ -1165,7 +1166,7 @@ void ofApp::setupEffects() {
                           // beat analysis
                           uniform float scaled_vol;
                           uniform float loudest_band;
-
+                          uniform float current_vol;
                           uniform sampler2D backbuffer;
 
                           float orbitDistance = 0.000025;
@@ -1245,7 +1246,7 @@ void ofApp::setupEffects() {
                           // beat analysis
                           uniform float scaled_vol;
                           uniform float loudest_band;
-
+                          uniform float current_vol;
                           void main( void ) {
                               vec2 position = ( gl_FragCoord.xy / resolution.xy ) + mouse / 4.0;
 
@@ -1272,7 +1273,7 @@ void ofApp::setupEffects() {
                           // beat analysis
                           uniform float scaled_vol;
                           uniform float loudest_band;
-
+                          uniform float current_vol;
                           vec3 sim(vec3 p,float s);
                           vec2 rot(vec2 p,float r);
                           vec2 rotsim(vec2 p,float s);
@@ -1401,7 +1402,7 @@ void ofApp::setupEffects() {
                           // beat analysis
                           uniform float scaled_vol;
                           uniform float loudest_band;
-
+                          uniform float current_vol;
                           void main(void){
                               float x = gl_FragCoord.x;
                               float y = gl_FragCoord.y;
@@ -1424,7 +1425,7 @@ void ofApp::setupEffects() {
                           // beat analysis
                           uniform float scaled_vol;
                           uniform float loudest_band;
-
+                          uniform float current_vol;
                           vec3 mod289(vec3 x) {
                               return x - floor(x * (1.0 / 289.0)) * 289.0;
                           }
@@ -1496,7 +1497,7 @@ void ofApp::setupEffects() {
                           // beat analysis
                           uniform float scaled_vol;
                           uniform float loudest_band;
-
+                          uniform float current_vol;
                           // How fast it animates
                           float tscale = 1.5;
 
@@ -1562,7 +1563,7 @@ void ofApp::setupEffects() {
                           // beat analysis
                           uniform float scaled_vol;
                           uniform float loudest_band;
-
+                          uniform float current_vol;
                           vec3 permute(vec3 x) {
                               return mod((34.0 * x + 1.0) * x, 560.0);
                           }
@@ -1628,7 +1629,7 @@ void ofApp::setupEffects() {
                           // beat analysis
                           uniform float scaled_vol;
                           uniform float loudest_band;
-
+                          uniform float current_vol;
                           float border(vec2 uv, float thickness){
                               uv = fract(uv - vec2(0.5));
                               uv = min(uv, vec2(1.)-uv)*2.;
