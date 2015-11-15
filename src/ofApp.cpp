@@ -3,6 +3,10 @@
 #define kVolHistorySize (400)
 #define kNumberOfBands (32)
 
+float round(const float value) {
+    return roundf(value * 1000) / 1000;
+}
+
 //--------------------------------------------------------------
 void ofApp::setup(){
     // ofFX related stuff
@@ -12,7 +16,7 @@ void ofApp::setup(){
     selection = -1;
     setupEffects();
 
-    draw_hud_ = false;
+    draw_hud_ = true;
 
     ofBackground(0, 0, 0);
 
@@ -210,8 +214,8 @@ void ofApp::drawHUD() {
     hudFont.drawString("kick: "+ofToString(beat_.kick()), 10, 40);
     hudFont.drawString("snare: "+ofToString(beat_.snare()), 10, 60);
     hudFont.drawString("hihat: "+ofToString(beat_.hihat()), 10, 80);
-    hudFont.drawString("current vol: "+ofToString(current_vol_), 10, 100);
-    hudFont.drawString("smoothed vol: "+ofToString(smoothed_vol_), 10, 120);
+    hudFont.drawString("current vol: "+ofToString(round(current_vol_)), 10, 100);
+    hudFont.drawString("smoothed vol: "+ofToString(round(smoothed_vol_)), 10, 120);
 
     // kick bar
     ofSetColor(102, 102, 255);
@@ -237,9 +241,9 @@ void ofApp::drawHUD() {
     // Draw Gist onset event info
     ofSetColor(255, 255, 255);
     hudFont.drawString("GIST ONSET EVENT", 300, 20);
-    hudFont.drawString("energy: "+ofToString(gist_event_energy_), 300, 40);
-    hudFont.drawString("frequency: "+ofToString(gist_event_frequency_), 300, 60);
-    hudFont.drawString("onset amount: "+ofToString(gist_event_onset_amount_), 300, 80);
+    hudFont.drawString("energy: "+ofToString(round(gist_event_energy_)), 300, 40);
+    hudFont.drawString("frequency: "+ofToString(round(gist_event_frequency_)), 300, 60);
+    hudFont.drawString("onset amount: "+ofToString(round(gist_event_onset_amount_)), 300, 80);
     hudFont.drawString("note on: "+ofToString(gist_event_note_on_), 300, 100);
 
     // Key hints
@@ -248,19 +252,19 @@ void ofApp::drawHUD() {
     // Draw Gist info
     ofSetColor(255, 255, 255);
     hudFont.drawString("GIST FEATURES", 300, 180);
-    hudFont.drawString("pitch: "+ofToString(gist_.getValue(GIST_PITCH)), 300, 200);
-    hudFont.drawString("note: "+ofToString(gist_.getValue(GIST_NOTE)), 300, 220);
-    hudFont.drawString("root mean square: "+ofToString(gist_.getValue(GIST_ROOT_MEAN_SQUARE)), 300, 240);
-    hudFont.drawString("peak energy: "+ofToString(gist_.getValue(GIST_PEAK_ENERGY)), 300, 260);
+    hudFont.drawString("pitch: "+ofToString(round(gist_.getValue(GIST_PITCH))), 300, 200);
+    hudFont.drawString("note: "+ofToString(round(gist_.getValue(GIST_NOTE))), 300, 220);
+    hudFont.drawString("root mean square: "+ofToString(round(gist_.getValue(GIST_ROOT_MEAN_SQUARE))), 300, 240);
+    hudFont.drawString("peak energy: "+ofToString(round(gist_.getValue(GIST_PEAK_ENERGY))), 300, 260);
     hudFont.drawString("special crest: "+ofToString(gist_.getValue(GIST_SPECTRAL_CREST)), 300, 280);
     hudFont.drawString("zero crossing rate: "+ofToString(gist_.getValue(GIST_ZERO_CROSSING_RATE)), 300, 300);
     hudFont.drawString("SPECTRAL FEATURES", 300, 320);
-    hudFont.drawString("centroid: "+ofToString(gist_.getValue(GIST_SPECTRAL_CENTROID)), 300, 340);
-    hudFont.drawString("flatness: "+ofToString(gist_.getValue(GIST_SPECTRAL_FLATNESS)), 300, 360);
-    hudFont.drawString("difference: "+ofToString(gist_.getValue(GIST_SPECTRAL_DIFFERENCE)), 300, 380);
-    hudFont.drawString("difference complex: "+ofToString(gist_.getValue(GIST_SPECTRAL_DIFFERENCE_COMPLEX)), 300, 400);
-    hudFont.drawString("difference halfway: "+ofToString(gist_.getValue(GIST_SPECTRAL_DIFFERENCE_HALFWAY)), 300, 420);
-    hudFont.drawString("high freq. content: "+ofToString(gist_.getValue(GIST_HIGH_FREQUENCY_CONTENT)), 300, 440);
+    hudFont.drawString("centroid: "+ofToString(round(gist_.getValue(GIST_SPECTRAL_CENTROID))), 300, 340);
+    hudFont.drawString("flatness: "+ofToString(round(gist_.getValue(GIST_SPECTRAL_FLATNESS))), 300, 360);
+    hudFont.drawString("difference: "+ofToString(round(gist_.getValue(GIST_SPECTRAL_DIFFERENCE))), 300, 380);
+    hudFont.drawString("difference complex: "+ofToString(round(gist_.getValue(GIST_SPECTRAL_DIFFERENCE_COMPLEX))), 300, 400);
+    hudFont.drawString("difference halfway: "+ofToString(round(gist_.getValue(GIST_SPECTRAL_DIFFERENCE_HALFWAY))), 300, 420);
+    hudFont.drawString("high freq. content: "+ofToString(round(gist_.getValue(GIST_HIGH_FREQUENCY_CONTENT))), 300, 440);
 
     // Draw individual bands as bars, also show frequencies and values
     // for each band.
@@ -274,7 +278,7 @@ void ofApp::drawHUD() {
         ofSetColor(255, 255, 255);
 
         float hz = ((i+1) * sample_rate_) / beat_.getBufferSize();
-        std::string text = ofToString(i) + ") " + ofToString(hz) + " hz " + ofToString(selectedBand);
+        std::string text = ofToString(i) + ") " + ofToString(hz) + " hz " + ofToString(round(selectedBand));
         hudFont.drawString(text, 10, 140 + (20*i));
 
         if (i== loudest_band_) {
