@@ -1206,10 +1206,14 @@ void ofApp::setupEffects() {
                           uniform vec2 mouse;
                           uniform vec2 resolution;
 
-                          // beat analysis
-                          uniform float scaled_vol;
-                          uniform float loudest_band;
-                          uniform float current_vol;
+                         // beat analysis
+                         uniform float scaled_vol;
+                         uniform float loudest_band;
+                         uniform float current_vol;
+                         uniform float hihat;
+                         uniform float kick;
+                         uniform float snare;
+
                           uniform sampler2D backbuffer;
 
                           float orbitDistance = 0.000025;
@@ -1286,10 +1290,14 @@ void ofApp::setupEffects() {
                           uniform vec2 mouse;
                           uniform vec2 resolution;
 
-                          // beat analysis
-                          uniform float scaled_vol;
-                          uniform float loudest_band;
-                          uniform float current_vol;
+                         // beat analysis
+                         uniform float scaled_vol;
+                         uniform float loudest_band;
+                         uniform float current_vol;
+                         uniform float hihat;
+                         uniform float kick;
+                         uniform float snare;
+
                           void main( void ) {
                               vec2 position = ( gl_FragCoord.xy / resolution.xy ) + mouse / 4.0;
 
@@ -1313,10 +1321,14 @@ void ofApp::setupEffects() {
                           uniform vec2 mouse;
                           uniform vec2 resolution;
 
-                          // beat analysis
-                          uniform float scaled_vol;
-                          uniform float loudest_band;
-                          uniform float current_vol;
+                         // beat analysis
+                         uniform float scaled_vol;
+                         uniform float loudest_band;
+                         uniform float current_vol;
+                         uniform float hihat;
+                         uniform float kick;
+                         uniform float snare;
+
                           vec3 sim(vec3 p,float s);
                           vec2 rot(vec2 p,float r);
                           vec2 rotsim(vec2 p,float s);
@@ -1442,10 +1454,14 @@ void ofApp::setupEffects() {
                           uniform vec2 resolution;
                           uniform float time;
 
-                          // beat analysis
-                          uniform float scaled_vol;
-                          uniform float loudest_band;
-                          uniform float current_vol;
+                         // beat analysis
+                         uniform float scaled_vol;
+                         uniform float loudest_band;
+                         uniform float current_vol;
+                         uniform float hihat;
+                         uniform float kick;
+                         uniform float snare;
+
                           void main(void){
                               float x = gl_FragCoord.x;
                               float y = gl_FragCoord.y;
@@ -1465,10 +1481,14 @@ void ofApp::setupEffects() {
                           uniform vec2 mouse;
                           uniform vec2 resolution;
 
-                          // beat analysis
-                          uniform float scaled_vol;
-                          uniform float loudest_band;
-                          uniform float current_vol;
+                         // beat analysis
+                         uniform float scaled_vol;
+                         uniform float loudest_band;
+                         uniform float current_vol;
+                         uniform float hihat;
+                         uniform float kick;
+                         uniform float snare;
+
                           vec3 mod289(vec3 x) {
                               return x - floor(x * (1.0 / 289.0)) * 289.0;
                           }
@@ -1537,10 +1557,14 @@ void ofApp::setupEffects() {
                           uniform vec2 mouse;
                           uniform vec2 resolution;
 
-                          // beat analysis
-                          uniform float scaled_vol;
-                          uniform float loudest_band;
-                          uniform float current_vol;
+                         // beat analysis
+                         uniform float scaled_vol;
+                         uniform float loudest_band;
+                         uniform float current_vol;
+                         uniform float hihat;
+                         uniform float kick;
+                         uniform float snare;
+
                           // How fast it animates
                           float tscale = 1.5;
 
@@ -1603,10 +1627,13 @@ void ofApp::setupEffects() {
                           uniform vec2 mouse;
                           uniform vec2 resolution;
 
-                          // beat analysis
-                          uniform float scaled_vol;
-                          uniform float loudest_band;
-                          uniform float current_vol;
+                         // beat analysis
+                         uniform float scaled_vol;
+                         uniform float loudest_band;
+                         uniform float current_vol;
+                         uniform float hihat;
+                         uniform float kick;
+                         uniform float snare;
 
                           vec3 permute(vec3 x) {
                               return mod((34.0 * x + 1.0) * x, 560.0);
@@ -1670,10 +1697,14 @@ void ofApp::setupEffects() {
                           uniform vec2 resolution;
                           uniform vec2 mouse;
 
-                          // beat analysis
-                          uniform float scaled_vol;
-                          uniform float loudest_band;
-                          uniform float current_vol;
+                         // beat analysis
+                         uniform float scaled_vol;
+                         uniform float loudest_band;
+                         uniform float current_vol;
+                         uniform float hihat;
+                         uniform float kick;
+                         uniform float snare;
+
                           float border(vec2 uv, float thickness){
                               uv = fract(uv - vec2(0.5));
                               uv = min(uv, vec2(1.)-uv)*2.;
