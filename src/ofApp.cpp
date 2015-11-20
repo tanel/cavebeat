@@ -113,6 +113,9 @@ void ofApp::update(){
     sandbox.setUniform1f("scaled_vol", scaled_vol_);
     sandbox.setUniform1f("loudest_band", loudest_band_);
     sandbox.setUniform1f("current_vol", current_vol_);
+    sandbox.setUniform1f("kick", beat_.kick());
+    sandbox.setUniform1f("snare", beat_.snare());
+    sandbox.setUniform1f("hihat", beat_.hihat());
 
     // Update effects
     sandbox.update();
@@ -529,6 +532,10 @@ void ofApp::setupEffects() {
                          // beat analysis
                          uniform float scaled_vol;
                          uniform float loudest_band;
+                         uniform float current_vol;
+                         uniform float hihat;
+                         uniform float kick;
+                         uniform float snare;
 
                          float viewAngle = 1.0;
                          float speed = 9.0;
@@ -561,6 +568,10 @@ void ofApp::setupEffects() {
                          // beat analysis
                          uniform float scaled_vol;
                          uniform float loudest_band;
+                         uniform float current_vol;
+                         uniform float hihat;
+                         uniform float kick;
+                         uniform float snare;
 
                          float pi = 3.141592653589793238462643383279;
 
@@ -588,6 +599,10 @@ void ofApp::setupEffects() {
                          // beat analysis
                          uniform float scaled_vol;
                          uniform float loudest_band;
+                         uniform float current_vol;
+                         uniform float hihat;
+                         uniform float kick;
+                         uniform float snare;
 
                          void main( void ){
                              vec2 position = (gl_FragCoord.xy - resolution * 0.5) / resolution.yy;
@@ -624,6 +639,10 @@ void ofApp::setupEffects() {
                          // beat analysis
                          uniform float scaled_vol;
                          uniform float loudest_band;
+                         uniform float current_vol;
+                         uniform float hihat;
+                         uniform float kick;
+                         uniform float snare;
 
                          float rand(vec2 co){
                              return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
@@ -705,6 +724,10 @@ void ofApp::setupEffects() {
                          // beat analysis
                          uniform float scaled_vol;
                          uniform float loudest_band;
+                         uniform float current_vol;
+                         uniform float hihat;
+                         uniform float kick;
+                         uniform float snare;
 
                          vec3 mod289(vec3 x) {
                              return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -769,6 +792,10 @@ void ofApp::setupEffects() {
                          // beat analysis
                          uniform float scaled_vol;
                          uniform float loudest_band;
+                         uniform float current_vol;
+                         uniform float hihat;
+                         uniform float kick;
+                         uniform float snare;
 
                          float getValue(vec2 p, float x2, float y2, float cmin, float cmax){
                              float x=p.x;
@@ -820,6 +847,10 @@ void ofApp::setupEffects() {
                          // beat analysis
                          uniform float scaled_vol;
                          uniform float loudest_band;
+                         uniform float current_vol;
+                         uniform float hihat;
+                         uniform float kick;
+                         uniform float snare;
 
                          float k_PI = 3.141592654;
                          float k_MoveSpeed = 0.5;
@@ -895,6 +926,10 @@ void ofApp::setupEffects() {
                          // beat analysis
                          uniform float scaled_vol;
                          uniform float loudest_band;
+                         uniform float current_vol;
+                         uniform float hihat;
+                         uniform float kick;
+                         uniform float snare;
 
                          float makePoint(float x,float y,float fx,float fy,float sx,float sy,float t){
                              float xx=x+sin(t*fx)*sx;
@@ -983,6 +1018,10 @@ void ofApp::setupEffects() {
                          // beat analysis
                          uniform float scaled_vol;
                          uniform float loudest_band;
+                         uniform float current_vol;
+                         uniform float hihat;
+                         uniform float kick;
+                         uniform float snare;
 
                          float PI=3.14159265;
 
@@ -1136,6 +1175,10 @@ void ofApp::setupEffects() {
                          // beat analysis
                          uniform float scaled_vol;
                          uniform float loudest_band;
+                         uniform float current_vol;
+                         uniform float hihat;
+                         uniform float kick;
+                         uniform float snare;
 
                          void main( void ) {
                              vec2 position = (gl_FragCoord.xy - resolution * 0.5) / resolution.yy;
@@ -1564,6 +1607,7 @@ void ofApp::setupEffects() {
                           uniform float scaled_vol;
                           uniform float loudest_band;
                           uniform float current_vol;
+
                           vec3 permute(vec3 x) {
                               return mod((34.0 * x + 1.0) * x, 560.0);
                           }
