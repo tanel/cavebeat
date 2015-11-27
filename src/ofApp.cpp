@@ -16,7 +16,7 @@ void ofApp::setup(){
     selection = -1;
     setupEffects();
 
-    draw_hud_ = false;
+    draw_hud_ = true;
 
     ofBackground(0, 0, 0);
 
@@ -78,6 +78,18 @@ void ofApp::setup(){
 
     // allocate FBO
     fbo.allocate(ofGetWidth(), ofGetHeight());
+
+    // Video grabber
+    // Set capture dimensions of 320x240, a common video size.
+    camWidth = 320;
+    camHeight = 240;
+
+    // Open an ofVideoGrabber for the default camera
+    myVideoGrabber.initGrabber (camWidth,camHeight);
+
+    // Create resources to store and display another copy of the data
+    invertedVideoData = new unsigned char [camWidth * camHeight * 3];
+    myTexture.allocate (camWidth,camHeight, GL_RGB);
 
     setup_done_ = true;
 }
@@ -144,7 +156,36 @@ void ofApp::update(){
         oldtv.update();
     }
 
+    // calculate beat
     beat += (1.0/ofGetFrameRate())*2;
+
+    // video grabber
+    // Ask the grabber to refresh its data.
+    myVideoGrabber.update();
+
+    // If the grabber indeed has fresh data,
+    if(myVideoGrabber.isFrameNew()){
+
+        // Obtain a pointer to the grabber's image data.
+        unsigned char* pixelData = myVideoGrabber.getPixels();
+
+        // Reckon the total number of bytes to examine.
+        // This is the image's width times its height,
+        // times 3 -- because each pixel requires 3 bytes
+        // to store its R, G, and B color components.
+        int nTotalBytes = camWidth * camHeight * 3;
+
+        // For every byte of the RGB image data,
+        for(int i=0; i<nTotalBytes; i++){
+
+            // pixelData[i] is the i'th byte of the image;
+            // subtract it from 255, to make a "photo negative"
+            invertedVideoData[i] = 255 - pixelData[i];
+        }
+        
+        // Now stash the inverted data in an ofTexture
+        myTexture.loadData (invertedVideoData, camWidth,camHeight, GL_RGB);
+    }
 }
 
 //--------------------------------------------------------------
@@ -160,10 +201,10 @@ void ofApp::draw(){
         drawHUD();
     }
 
-    fbo.end();
-    fbo.draw(0, 0);
+    myVideoGrabber.draw(10,10);
 
-    // Draw effects
+    fbo.end();
+
     ofBackground(0);
     ofPushStyle();
     ofEnableBlendMode(OF_BLENDMODE_ALPHA );

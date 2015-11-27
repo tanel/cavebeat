@@ -101,5 +101,13 @@ private:
     float       beat;
     int         nFrag, selection;
 
+    // Video grabber
+    ofVideoGrabber myVideoGrabber;
+    ofTexture myTexture;
+
+    unsigned char* invertedVideoData;
+    int camWidth;
+    int camHeight;
+
     bool setup_done_;
 };
