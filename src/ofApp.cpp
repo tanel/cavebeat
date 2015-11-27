@@ -80,9 +80,8 @@ void ofApp::setup(){
     fbo.allocate(ofGetWidth(), ofGetHeight());
 
     // Video grabber
-    // Set capture dimensions of 320x240, a common video size.
-    camWidth = 320;
-    camHeight = 240;
+    camWidth = ofGetWidth() / 2;
+    camHeight = ofGetHeight() / 2;
 
     // Open an ofVideoGrabber for the default camera
     myVideoGrabber.initGrabber (camWidth,camHeight);
