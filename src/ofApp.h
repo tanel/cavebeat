@@ -11,6 +11,7 @@
 #include "ofxBokeh.h"
 #include "ofxGlow.h"
 #include "ofxOldTv.h"
+#include "ofxCv.h"
 
 class ofApp : public ofBaseApp{
 
@@ -104,10 +105,12 @@ private:
     // Video grabber
     ofVideoGrabber myVideoGrabber;
     ofTexture myTexture;
-
     unsigned char* invertedVideoData;
     int camWidth;
     int camHeight;
+
+    //
+    ofxCv::ContourFinder contourFinder;
 
     bool setup_done_;
 };
