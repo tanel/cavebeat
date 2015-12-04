@@ -193,7 +193,7 @@ void ofApp::draw(){
         // Contour finder
         ofxCv::RectTracker& tracker = contourFinder.getTracker();
 
-        bool showLabels = true;
+        bool showLabels = false;
 
         if(showLabels) {
             ofSetColor(255);
