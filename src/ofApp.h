@@ -105,12 +105,10 @@ private:
 
     // Video grabber
     ofVideoGrabber myVideoGrabber;
-    ofTexture myTexture;
-    unsigned char* invertedVideoData;
     int camWidth;
     int camHeight;
 
-    //
+    // contour finder
     ofxCv::ContourFinder contourFinder;
 
     bool setup_done_;

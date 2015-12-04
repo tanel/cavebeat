@@ -3,7 +3,7 @@
 #define kVolHistorySize (400)
 #define kNumberOfBands (32)
 
-float round(const float value) {
+float roundDecimals(const float value) {
     return roundf(value * 1000) / 1000;
 }
 
@@ -87,9 +87,14 @@ void ofApp::setup(){
     // Open an ofVideoGrabber for the default camera
     myVideoGrabber.initGrabber (camWidth,camHeight);
 
-    // Create resources to store and display another copy of the data
-    invertedVideoData = new unsigned char [camWidth * camHeight * 3];
-    myTexture.allocate (camWidth,camHeight, GL_RGB);
+    // Contour finder
+    contourFinder.setMinAreaRadius(1);
+    contourFinder.setMaxAreaRadius(100);
+    contourFinder.setThreshold(15);
+    // wait for half a frame before forgetting something
+    contourFinder.getTracker().setPersistence(15);
+    // an object can move up to 32 pixels per frame
+    contourFinder.getTracker().setMaximumDistance(32);
 
     setup_done_ = true;
 }
@@ -164,27 +169,8 @@ void ofApp::update(){
     myVideoGrabber.update();
 
     // If the grabber indeed has fresh data,
-    if(myVideoGrabber.isFrameNew()){
-
-        // Obtain a pointer to the grabber's image data.
-        unsigned char* pixelData = myVideoGrabber.getPixels();
-
-        // Reckon the total number of bytes to examine.
-        // This is the image's width times its height,
-        // times 3 -- because each pixel requires 3 bytes
-        // to store its R, G, and B color components.
-        int nTotalBytes = camWidth * camHeight * 3;
-
-        // For every byte of the RGB image data,
-        for(int i=0; i<nTotalBytes; i++){
-
-            // pixelData[i] is the i'th byte of the image;
-            // subtract it from 255, to make a "photo negative"
-            invertedVideoData[i] = 255 - pixelData[i];
-        }
-        
-        // Now stash the inverted data in an ofTexture
-        myTexture.loadData (invertedVideoData, camWidth,camHeight, GL_RGB);
+    if(myVideoGrabber.isFrameNew()) {
+        contourFinder.findContours(myVideoGrabber);
     }
 }
 
@@ -203,6 +189,72 @@ void ofApp::draw(){
 
     if (draw_video_) {
         myVideoGrabber.draw(10,10);
+
+        // Contour finder
+        ofxCv::RectTracker& tracker = contourFinder.getTracker();
+
+        bool showLabels = true;
+
+        if(showLabels) {
+            ofSetColor(255);
+            myVideoGrabber.draw(0, 0);
+            contourFinder.draw();
+            for(int i = 0; i < contourFinder.size(); i++) {
+                ofPoint center = ofxCv::toOf(contourFinder.getCenter(i));
+                ofPushMatrix();
+                ofTranslate(center.x, center.y);
+                int label = contourFinder.getLabel(i);
+                string msg = ofToString(label) + ":" + ofToString(tracker.getAge(label));
+                ofDrawBitmapString(msg, 0, 0);
+                ofVec2f velocity = ofxCv::toOf(contourFinder.getVelocity(i));
+                ofScale(5, 5);
+                ofDrawLine(0, 0, velocity.x, velocity.y);
+                ofPopMatrix();
+            }
+        } else {
+            for(int i = 0; i < contourFinder.size(); i++) {
+                unsigned int label = contourFinder.getLabel(i);
+                // only draw a line if this is not a new label
+                if(tracker.existsPrevious(label)) {
+                    // use the label to pick a random color
+                    ofSeedRandom(label << 24);
+                    ofSetColor(ofColor::fromHsb(ofRandom(255), 255, 255));
+                    // get the tracked object (cv::Rect) at current and previous position
+                    const cv::Rect& previous = tracker.getPrevious(label);
+                    const cv::Rect& current = tracker.getCurrent(label);
+                    // get the centers of the rectangles
+                    ofVec2f previousPosition(previous.x + previous.width / 2, previous.y + previous.height / 2);
+                    ofVec2f currentPosition(current.x + current.width / 2, current.y + current.height / 2);
+                    ofDrawLine(previousPosition, currentPosition);
+                }
+            }
+        }
+
+        // this chunk of code visualizes the creation and destruction of labels
+        const vector<unsigned int>& currentLabels = tracker.getCurrentLabels();
+        const vector<unsigned int>& previousLabels = tracker.getPreviousLabels();
+        const vector<unsigned int>& newLabels = tracker.getNewLabels();
+        const vector<unsigned int>& deadLabels = tracker.getDeadLabels();
+        ofSetColor(ofxCv::cyanPrint);
+        for(int i = 0; i < currentLabels.size(); i++) {
+            int j = currentLabels[i];
+            ofDrawLine(j, 0, j, 4);
+        }
+        ofSetColor(ofxCv::magentaPrint);
+        for(int i = 0; i < previousLabels.size(); i++) {
+            int j = previousLabels[i];
+            ofDrawLine(j, 4, j, 8);
+        }
+        ofSetColor(ofxCv::yellowPrint);
+        for(int i = 0; i < newLabels.size(); i++) {
+            int j = newLabels[i];
+            ofDrawLine(j, 8, j, 12);
+        }
+        ofSetColor(ofColor::white);
+        for(int i = 0; i < deadLabels.size(); i++) {
+            int j = deadLabels[i];
+            ofDrawLine(j, 12, j, 16);
+        }
     }
 
     fbo.end();
@@ -211,6 +263,7 @@ void ofApp::draw(){
     ofPushStyle();
     ofEnableBlendMode(OF_BLENDMODE_ALPHA );
 
+    // shaders
     string title = "";
     if (nFrag != -1)
         title += fragsTitles[ nFrag ];
@@ -262,8 +315,8 @@ void ofApp::drawHUD() {
     hudFont.drawString("kick: "+ofToString(beat_.kick()), 10, 40);
     hudFont.drawString("snare: "+ofToString(beat_.snare()), 10, 60);
     hudFont.drawString("hihat: "+ofToString(beat_.hihat()), 10, 80);
-    hudFont.drawString("current vol: "+ofToString(round(current_vol_)), 10, 100);
-    hudFont.drawString("smoothed vol: "+ofToString(round(smoothed_vol_)), 10, 120);
+    hudFont.drawString("current vol: "+ofToString(roundDecimals(current_vol_)), 10, 100);
+    hudFont.drawString("smoothed vol: "+ofToString(roundDecimals(smoothed_vol_)), 10, 120);
 
     // kick bar
     ofSetColor(102, 102, 255);
@@ -289,9 +342,9 @@ void ofApp::drawHUD() {
     // Draw Gist onset event info
     ofSetColor(255, 255, 255);
     hudFont.drawString("GIST ONSET EVENT", 300, 20);
-    hudFont.drawString("energy: "+ofToString(round(gist_event_energy_)), 300, 40);
-    hudFont.drawString("frequency: "+ofToString(round(gist_event_frequency_)), 300, 60);
-    hudFont.drawString("onset amount: "+ofToString(round(gist_event_onset_amount_)), 300, 80);
+    hudFont.drawString("energy: "+ofToString(roundDecimals(gist_event_energy_)), 300, 40);
+    hudFont.drawString("frequency: "+ofToString(roundDecimals(gist_event_frequency_)), 300, 60);
+    hudFont.drawString("onset amount: "+ofToString(roundDecimals(gist_event_onset_amount_)), 300, 80);
     hudFont.drawString("note on: "+ofToString(gist_event_note_on_), 300, 100);
 
     // Key hints
@@ -300,19 +353,19 @@ void ofApp::drawHUD() {
     // Draw Gist info
     ofSetColor(255, 255, 255);
     hudFont.drawString("GIST FEATURES", 300, 180);
-    hudFont.drawString("pitch: "+ofToString(round(gist_.getValue(GIST_PITCH))), 300, 200);
-    hudFont.drawString("note: "+ofToString(round(gist_.getValue(GIST_NOTE))), 300, 220);
-    hudFont.drawString("root mean square: "+ofToString(round(gist_.getValue(GIST_ROOT_MEAN_SQUARE))), 300, 240);
-    hudFont.drawString("peak energy: "+ofToString(round(gist_.getValue(GIST_PEAK_ENERGY))), 300, 260);
+    hudFont.drawString("pitch: "+ofToString(roundDecimals(gist_.getValue(GIST_PITCH))), 300, 200);
+    hudFont.drawString("note: "+ofToString(roundDecimals(gist_.getValue(GIST_NOTE))), 300, 220);
+    hudFont.drawString("root mean square: "+ofToString(roundDecimals(gist_.getValue(GIST_ROOT_MEAN_SQUARE))), 300, 240);
+    hudFont.drawString("peak energy: "+ofToString(roundDecimals(gist_.getValue(GIST_PEAK_ENERGY))), 300, 260);
     hudFont.drawString("special crest: "+ofToString(gist_.getValue(GIST_SPECTRAL_CREST)), 300, 280);
     hudFont.drawString("zero crossing rate: "+ofToString(gist_.getValue(GIST_ZERO_CROSSING_RATE)), 300, 300);
     hudFont.drawString("SPECTRAL FEATURES", 300, 320);
-    hudFont.drawString("centroid: "+ofToString(round(gist_.getValue(GIST_SPECTRAL_CENTROID))), 300, 340);
-    hudFont.drawString("flatness: "+ofToString(round(gist_.getValue(GIST_SPECTRAL_FLATNESS))), 300, 360);
-    hudFont.drawString("difference: "+ofToString(round(gist_.getValue(GIST_SPECTRAL_DIFFERENCE))), 300, 380);
-    hudFont.drawString("difference complex: "+ofToString(round(gist_.getValue(GIST_SPECTRAL_DIFFERENCE_COMPLEX))), 300, 400);
-    hudFont.drawString("difference halfway: "+ofToString(round(gist_.getValue(GIST_SPECTRAL_DIFFERENCE_HALFWAY))), 300, 420);
-    hudFont.drawString("high freq. content: "+ofToString(round(gist_.getValue(GIST_HIGH_FREQUENCY_CONTENT))), 300, 440);
+    hudFont.drawString("centroid: "+ofToString(roundDecimals(gist_.getValue(GIST_SPECTRAL_CENTROID))), 300, 340);
+    hudFont.drawString("flatness: "+ofToString(roundDecimals(gist_.getValue(GIST_SPECTRAL_FLATNESS))), 300, 360);
+    hudFont.drawString("difference: "+ofToString(roundDecimals(gist_.getValue(GIST_SPECTRAL_DIFFERENCE))), 300, 380);
+    hudFont.drawString("difference complex: "+ofToString(roundDecimals(gist_.getValue(GIST_SPECTRAL_DIFFERENCE_COMPLEX))), 300, 400);
+    hudFont.drawString("difference halfway: "+ofToString(roundDecimals(gist_.getValue(GIST_SPECTRAL_DIFFERENCE_HALFWAY))), 300, 420);
+    hudFont.drawString("high freq. content: "+ofToString(roundDecimals(gist_.getValue(GIST_HIGH_FREQUENCY_CONTENT))), 300, 440);
 
     // Draw individual bands as bars, also show frequencies and values
     // for each band.
@@ -326,7 +379,7 @@ void ofApp::drawHUD() {
         ofSetColor(255, 255, 255);
 
         float hz = ((i+1) * sample_rate_) / beat_.getBufferSize();
-        std::string text = ofToString(i) + ") " + ofToString(hz) + " hz " + ofToString(round(selectedBand));
+        std::string text = ofToString(i) + ") " + ofToString(hz) + " hz " + ofToString(roundDecimals(selectedBand));
         hudFont.drawString(text, 10, 140 + (20*i));
 
         if (i== loudest_band_) {
@@ -1251,13 +1304,13 @@ void ofApp::setupEffects() {
                           uniform vec2 mouse;
                           uniform vec2 resolution;
 
-                         // beat analysis
-                         uniform float scaled_vol;
-                         uniform float loudest_band;
-                         uniform float current_vol;
-                         uniform float hihat;
-                         uniform float kick;
-                         uniform float snare;
+                          // beat analysis
+                          uniform float scaled_vol;
+                          uniform float loudest_band;
+                          uniform float current_vol;
+                          uniform float hihat;
+                          uniform float kick;
+                          uniform float snare;
 
                           uniform sampler2D backbuffer;
 
@@ -1335,13 +1388,13 @@ void ofApp::setupEffects() {
                           uniform vec2 mouse;
                           uniform vec2 resolution;
 
-                         // beat analysis
-                         uniform float scaled_vol;
-                         uniform float loudest_band;
-                         uniform float current_vol;
-                         uniform float hihat;
-                         uniform float kick;
-                         uniform float snare;
+                          // beat analysis
+                          uniform float scaled_vol;
+                          uniform float loudest_band;
+                          uniform float current_vol;
+                          uniform float hihat;
+                          uniform float kick;
+                          uniform float snare;
 
                           void main( void ) {
                               vec2 position = ( gl_FragCoord.xy / resolution.xy ) + mouse / 4.0;
@@ -1366,13 +1419,13 @@ void ofApp::setupEffects() {
                           uniform vec2 mouse;
                           uniform vec2 resolution;
 
-                         // beat analysis
-                         uniform float scaled_vol;
-                         uniform float loudest_band;
-                         uniform float current_vol;
-                         uniform float hihat;
-                         uniform float kick;
-                         uniform float snare;
+                          // beat analysis
+                          uniform float scaled_vol;
+                          uniform float loudest_band;
+                          uniform float current_vol;
+                          uniform float hihat;
+                          uniform float kick;
+                          uniform float snare;
 
                           vec3 sim(vec3 p,float s);
                           vec2 rot(vec2 p,float r);
@@ -1499,13 +1552,13 @@ void ofApp::setupEffects() {
                           uniform vec2 resolution;
                           uniform float time;
 
-                         // beat analysis
-                         uniform float scaled_vol;
-                         uniform float loudest_band;
-                         uniform float current_vol;
-                         uniform float hihat;
-                         uniform float kick;
-                         uniform float snare;
+                          // beat analysis
+                          uniform float scaled_vol;
+                          uniform float loudest_band;
+                          uniform float current_vol;
+                          uniform float hihat;
+                          uniform float kick;
+                          uniform float snare;
 
                           void main(void){
                               float x = gl_FragCoord.x;
@@ -1526,13 +1579,13 @@ void ofApp::setupEffects() {
                           uniform vec2 mouse;
                           uniform vec2 resolution;
 
-                         // beat analysis
-                         uniform float scaled_vol;
-                         uniform float loudest_band;
-                         uniform float current_vol;
-                         uniform float hihat;
-                         uniform float kick;
-                         uniform float snare;
+                          // beat analysis
+                          uniform float scaled_vol;
+                          uniform float loudest_band;
+                          uniform float current_vol;
+                          uniform float hihat;
+                          uniform float kick;
+                          uniform float snare;
 
                           vec3 mod289(vec3 x) {
                               return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -1602,13 +1655,13 @@ void ofApp::setupEffects() {
                           uniform vec2 mouse;
                           uniform vec2 resolution;
 
-                         // beat analysis
-                         uniform float scaled_vol;
-                         uniform float loudest_band;
-                         uniform float current_vol;
-                         uniform float hihat;
-                         uniform float kick;
-                         uniform float snare;
+                          // beat analysis
+                          uniform float scaled_vol;
+                          uniform float loudest_band;
+                          uniform float current_vol;
+                          uniform float hihat;
+                          uniform float kick;
+                          uniform float snare;
 
                           // How fast it animates
                           float tscale = 1.5;
@@ -1672,13 +1725,13 @@ void ofApp::setupEffects() {
                           uniform vec2 mouse;
                           uniform vec2 resolution;
 
-                         // beat analysis
-                         uniform float scaled_vol;
-                         uniform float loudest_band;
-                         uniform float current_vol;
-                         uniform float hihat;
-                         uniform float kick;
-                         uniform float snare;
+                          // beat analysis
+                          uniform float scaled_vol;
+                          uniform float loudest_band;
+                          uniform float current_vol;
+                          uniform float hihat;
+                          uniform float kick;
+                          uniform float snare;
 
                           vec3 permute(vec3 x) {
                               return mod((34.0 * x + 1.0) * x, 560.0);
@@ -1741,15 +1794,15 @@ void ofApp::setupEffects() {
                           uniform float time;
                           uniform vec2 resolution;
                           uniform vec2 mouse;
-
-                         // beat analysis
-                         uniform float scaled_vol;
-                         uniform float loudest_band;
-                         uniform float current_vol;
-                         uniform float hihat;
-                         uniform float kick;
-                         uniform float snare;
-
+                          
+                          // beat analysis
+                          uniform float scaled_vol;
+                          uniform float loudest_band;
+                          uniform float current_vol;
+                          uniform float hihat;
+                          uniform float kick;
+                          uniform float snare;
+                          
                           float border(vec2 uv, float thickness){
                               uv = fract(uv - vec2(0.5));
                               uv = min(uv, vec2(1.)-uv)*2.;
@@ -1808,6 +1861,6 @@ void ofApp::setupEffects() {
     glow.allocate(ofGetWidth(), ofGetHeight());
     gaussianBlur.allocate(ofGetWidth(), ofGetHeight());
     oldtv.allocate(ofGetWidth(), ofGetHeight());
-
+    
     sandbox.setCode( frags[nFrag] );
 }
