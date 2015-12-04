@@ -17,6 +17,7 @@ void ofApp::setup(){
     setupEffects();
 
     draw_hud_ = true;
+    draw_video_ = true;
 
     ofBackground(0, 0, 0);
 
@@ -200,7 +201,9 @@ void ofApp::draw(){
         drawHUD();
     }
 
-    myVideoGrabber.draw(10,10);
+    if (draw_video_) {
+        myVideoGrabber.draw(10,10);
+    }
 
     fbo.end();
 
@@ -292,7 +295,7 @@ void ofApp::drawHUD() {
     hudFont.drawString("note on: "+ofToString(gist_event_note_on_), 300, 100);
 
     // Key hints
-    hudFont.drawString("press 'h' to toggle HUD", 300, 140);
+    hudFont.drawString("'h' toggles HUD, 'v' video", 300, 140);
 
     // Draw Gist info
     ofSetColor(255, 255, 255);
@@ -490,6 +493,8 @@ void ofApp::onNoteOff(GistEvent &e){
 void ofApp::keyPressed(int key){
     if ('h' == key) {
         draw_hud_ = !draw_hud_;
+    } else if ('v' == key) {
+        draw_video_ = !draw_video_;
     }
 
     switch(key){
