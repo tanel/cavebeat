@@ -1699,6 +1699,24 @@
 			path = src;
 			sourceTree = "<group>";
 		};
+		749D41911C11C9EE008D4A01 /* opencv_shit */ = {
+			isa = PBXGroup;
+			children = (
+				749D417B1C11C7B5008D4A01 /* Calibration.cpp */,
+				749D417C1C11C7B5008D4A01 /* ContourFinder.cpp */,
+				749D417D1C11C7B5008D4A01 /* Distance.cpp */,
+				749D417E1C11C7B5008D4A01 /* Flow.cpp */,
+				749D417F1C11C7B5008D4A01 /* Helpers.cpp */,
+				749D41801C11C7B5008D4A01 /* Kalman.cpp */,
+				749D41811C11C7B5008D4A01 /* ObjectFinder.cpp */,
+				749D41821C11C7B5008D4A01 /* RunningBackground.cpp */,
+				749D41831C11C7B5008D4A01 /* Tracker.cpp */,
+				749D41841C11C7B5008D4A01 /* Utilities.cpp */,
+				749D41851C11C7B5008D4A01 /* Wrappers.cpp */,
+			);
+			name = opencv_shit;
+			sourceTree = "<group>";
+		};
 		74BC43D31BDBF2A500086718 /* ofxXmlSettings */ = {
 			isa = PBXGroup;
 			children = (
@@ -2255,17 +2273,7 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				749D417B1C11C7B5008D4A01 /* Calibration.cpp */,
-				749D417C1C11C7B5008D4A01 /* ContourFinder.cpp */,
-				749D417D1C11C7B5008D4A01 /* Distance.cpp */,
-				749D417E1C11C7B5008D4A01 /* Flow.cpp */,
-				749D417F1C11C7B5008D4A01 /* Helpers.cpp */,
-				749D41801C11C7B5008D4A01 /* Kalman.cpp */,
-				749D41811C11C7B5008D4A01 /* ObjectFinder.cpp */,
-				749D41821C11C7B5008D4A01 /* RunningBackground.cpp */,
-				749D41831C11C7B5008D4A01 /* Tracker.cpp */,
-				749D41841C11C7B5008D4A01 /* Utilities.cpp */,
-				749D41851C11C7B5008D4A01 /* Wrappers.cpp */,
+				749D41911C11C9EE008D4A01 /* opencv_shit */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
