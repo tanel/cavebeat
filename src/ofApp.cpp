@@ -73,7 +73,7 @@ void ofApp::setup(){
     // setup fonts
     ofTrueTypeFont::setGlobalDpi(72);
 
-    hudFont.loadFont("cooperBlack.ttf", 14, true, true);
+    hudFont.load("cooperBlack.ttf", 14, true, true);
     //hudFont.setLineHeight(14.0f);
     //hudFont.setLetterSpacing(1.037);
 
@@ -87,20 +87,10 @@ void ofApp::setup(){
     // Open an ofVideoGrabber for the default camera
     myVideoGrabber.initGrabber (camWidth,camHeight);
 
-    // Contour finder
-    contourFinder.setMinAreaRadius(1);
-    contourFinder.setMaxAreaRadius(100);
-    contourFinder.setThreshold(15);
-    // wait for half a frame before forgetting something
-    contourFinder.getTracker().setPersistence(15);
-    // an object can move up to 32 pixels per frame
-    contourFinder.getTracker().setMaximumDistance(32);
-
     setup_done_ = true;
 }
 
-//--------------------------------------------------------------
-void ofApp::update(){
+void ofApp::updateBeat() {
     beat_.update(ofGetElapsedTimeMillis());
 
     //lets scale the vol up to a 0-1 range
@@ -133,8 +123,29 @@ void ofApp::update(){
     sandbox.setUniform1f("kick", beat_.kick());
     sandbox.setUniform1f("snare", beat_.snare());
     sandbox.setUniform1f("hihat", beat_.hihat());
+}
 
-    // Update effects
+//--------------------------------------------------------------
+void ofApp::update(){
+    updateBeat();
+
+    updateShaders();
+
+    updateVideoGrabber();
+}
+
+void ofApp::updateVideoGrabber() {
+    // video grabber
+    // Ask the grabber to refresh its data.
+    myVideoGrabber.update();
+
+    // If the grabber indeed has fresh data,
+    if(myVideoGrabber.isFrameNew()) {
+        // FIXME: do magic
+    }
+}
+
+void ofApp::updateShaders() {
     sandbox.update();
 
     if ( selection == 0 ){
@@ -163,15 +174,6 @@ void ofApp::update(){
 
     // calculate beat
     beat += (1.0/ofGetFrameRate())*2;
-
-    // video grabber
-    // Ask the grabber to refresh its data.
-    myVideoGrabber.update();
-
-    // If the grabber indeed has fresh data,
-    if(myVideoGrabber.isFrameNew()) {
-        contourFinder.findContours(myVideoGrabber);
-    }
 }
 
 //--------------------------------------------------------------
@@ -189,76 +191,16 @@ void ofApp::draw(){
 
     if (draw_video_) {
         myVideoGrabber.draw(10,10);
-
-        // Contour finder
-        ofxCv::RectTracker& tracker = contourFinder.getTracker();
-
-        bool showLabels = false;
-
-        if(showLabels) {
-            ofSetColor(255);
-            myVideoGrabber.draw(0, 0);
-            contourFinder.draw();
-            for(int i = 0; i < contourFinder.size(); i++) {
-                ofPoint center = ofxCv::toOf(contourFinder.getCenter(i));
-                ofPushMatrix();
-                ofTranslate(center.x, center.y);
-                int label = contourFinder.getLabel(i);
-                string msg = ofToString(label) + ":" + ofToString(tracker.getAge(label));
-                ofDrawBitmapString(msg, 0, 0);
-                ofVec2f velocity = ofxCv::toOf(contourFinder.getVelocity(i));
-                ofScale(5, 5);
-                ofDrawLine(0, 0, velocity.x, velocity.y);
-                ofPopMatrix();
-            }
-        } else {
-            for(int i = 0; i < contourFinder.size(); i++) {
-                unsigned int label = contourFinder.getLabel(i);
-                // only draw a line if this is not a new label
-                if(tracker.existsPrevious(label)) {
-                    // use the label to pick a random color
-                    ofSeedRandom(label << 24);
-                    ofSetColor(ofColor::fromHsb(ofRandom(255), 255, 255));
-                    // get the tracked object (cv::Rect) at current and previous position
-                    const cv::Rect& previous = tracker.getPrevious(label);
-                    const cv::Rect& current = tracker.getCurrent(label);
-                    // get the centers of the rectangles
-                    ofVec2f previousPosition(previous.x + previous.width / 2, previous.y + previous.height / 2);
-                    ofVec2f currentPosition(current.x + current.width / 2, current.y + current.height / 2);
-                    ofDrawLine(previousPosition, currentPosition);
-                }
-            }
-        }
-
-        // this chunk of code visualizes the creation and destruction of labels
-        const vector<unsigned int>& currentLabels = tracker.getCurrentLabels();
-        const vector<unsigned int>& previousLabels = tracker.getPreviousLabels();
-        const vector<unsigned int>& newLabels = tracker.getNewLabels();
-        const vector<unsigned int>& deadLabels = tracker.getDeadLabels();
-        ofSetColor(ofxCv::cyanPrint);
-        for(int i = 0; i < currentLabels.size(); i++) {
-            int j = currentLabels[i];
-            ofDrawLine(j, 0, j, 4);
-        }
-        ofSetColor(ofxCv::magentaPrint);
-        for(int i = 0; i < previousLabels.size(); i++) {
-            int j = previousLabels[i];
-            ofDrawLine(j, 4, j, 8);
-        }
-        ofSetColor(ofxCv::yellowPrint);
-        for(int i = 0; i < newLabels.size(); i++) {
-            int j = newLabels[i];
-            ofDrawLine(j, 8, j, 12);
-        }
-        ofSetColor(ofColor::white);
-        for(int i = 0; i < deadLabels.size(); i++) {
-            int j = deadLabels[i];
-            ofDrawLine(j, 12, j, 16);
-        }
     }
 
     fbo.end();
 
+    drawShaders();
+
+    fbo.draw(0, 0);
+}
+
+void ofApp::drawShaders() {
     ofBackground(0);
     ofPushStyle();
     ofEnableBlendMode(OF_BLENDMODE_ALPHA );
@@ -300,8 +242,6 @@ void ofApp::draw(){
 
     ofPopStyle();
 
-    fbo.draw(0, 0);
-
     title += " running effect " + ofToString(nFrag) + " at " + ofToString(ofGetFrameRate(),1) + " fps";
     ofSetWindowTitle(title);
 }
@@ -321,23 +261,23 @@ void ofApp::drawHUD() {
     // kick bar
     ofSetColor(102, 102, 255);
     ofNoFill();
-    ofRect(150, 30, 100, 10);
+    ofRectangle(150, 30, 100, 10);
     ofFill();
-    ofRect(150, 30, ofMap(beat_.kick(), 0, 1, 0, 100), 10);
+    ofRectangle(150, 30, ofMap(beat_.kick(), 0, 1, 0, 100), 10);
 
     // snare bar
     ofSetColor(102, 102, 255);
     ofNoFill();
-    ofRect(150, 50, 100, 10);
+    ofRectangle(150, 50, 100, 10);
     ofFill();
-    ofRect(150, 50, ofMap(beat_.snare(), 0, 1, 0, 100), 10);
+    ofRectangle(150, 50, ofMap(beat_.snare(), 0, 1, 0, 100), 10);
 
     // hihat bar
     ofSetColor(102, 102, 255);
     ofNoFill();
-    ofRect(150, 70, 100, 10);
+    ofRectangle(150, 70, 100, 10);
     ofFill();
-    ofRect(150, 70, ofMap(beat_.hihat(), 0, 1, 0, 100), 10);
+    ofRectangle(150, 70, ofMap(beat_.hihat(), 0, 1, 0, 100), 10);
 
     // Draw Gist onset event info
     ofSetColor(255, 255, 255);
@@ -396,7 +336,7 @@ void ofApp::drawHUD() {
         float y = ofGetHeight()-20;
         float w = ofGetWidth()/kNumberOfBands;
         float h = -ofMap(selectedBand, 0, kVolumeRange, 0, ofGetHeight() / 10);
-        ofRect(x, y, w, h);
+        ofRectangle(x, y, w, h);
     }
     ofPopStyle();
 
@@ -411,7 +351,7 @@ void ofApp::drawHUD() {
     hudFont.drawString("Left Channel", 4, 18);
 
     ofSetLineWidth(1);
-    ofRect(0, 0, 440, 200);
+    ofRectangle(0, 0, 440, 200);
 
     ofSetColor(245, 58, 135);
     ofSetLineWidth(3);
@@ -434,7 +374,7 @@ void ofApp::drawHUD() {
     hudFont.drawString("Right Channel", 4, 18);
 
     ofSetLineWidth(1);
-    ofRect(0, 0, 440, 200);
+    ofRectangle(0, 0, 440, 200);
 
     ofSetColor(245, 58, 135);
     ofSetLineWidth(3);
@@ -458,7 +398,7 @@ void ofApp::drawHUD() {
 
     ofSetColor(245, 58, 135);
     ofFill();
-    ofCircle(200, 100, scaled_vol_ * 100.0f);
+    ofDrawCircle(200, 100, scaled_vol_ * 100.0f);
 
     //lets draw the volume history as a graph
     ofNoFill();

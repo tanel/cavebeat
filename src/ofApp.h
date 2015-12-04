@@ -46,7 +46,13 @@ public:
 
 private:
     void drawHUD();
+    void drawShaders();
+
     void setupEffects();
+
+    void updateBeat();
+    void updateVideoGrabber();
+    void updateShaders();
 
     ofxBeat beat_;
     int loudest_band_;
@@ -107,9 +113,6 @@ private:
     ofVideoGrabber myVideoGrabber;
     int camWidth;
     int camHeight;
-
-    // contour finder
-    ofxCv::ContourFinder contourFinder;
 
     bool setup_done_;
 };
