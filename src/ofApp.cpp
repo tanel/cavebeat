@@ -17,7 +17,7 @@ void ofApp::setup(){
     setupEffects();
 
     draw_hud_ = true;
-    draw_video_ = true;
+    draw_video_ = false;
 
     ofBackground(0, 0, 0);
 
@@ -84,9 +84,6 @@ void ofApp::setup(){
     camWidth = ofGetWidth() / 2;
     camHeight = ofGetHeight() / 2;
 
-    // Open an ofVideoGrabber for the default camera
-    myVideoGrabber.initGrabber (camWidth,camHeight);
-
     setup_done_ = true;
 }
 
@@ -135,6 +132,15 @@ void ofApp::update(){
 }
 
 void ofApp::updateVideoGrabber() {
+    if (!draw_video_) {
+        return;
+    }
+
+    // Open an ofVideoGrabber for the default camera
+    if (!myVideoGrabber.isInitialized()) {
+        myVideoGrabber.setup(camWidth, camHeight);
+    }
+
     // video grabber
     // Ask the grabber to refresh its data.
     myVideoGrabber.update();
